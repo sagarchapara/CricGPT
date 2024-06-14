@@ -74,7 +74,29 @@ def get_batting_stats_prompt():
         ...
     }}
     ```
+    Few examples of the queries are:
+
+    1. Highest Individual Score in ODIs 
+    {{
+        class_ = 2,
+        orderby=high_score
+    }}
+
+    Reasoning: We need to find the highest individual score in ODIs, so we need to provide the class as 2 as it is ODIs and orderby as high_score as it is per inning high score stats
+
+    2. Most Runs in a Calendar Year
+    {{
+        view=year,
+        orderby=runs
+    }}
+
+    Reasoning: We need to find the most runs in a calendar year, so we need to provide the view as year and orderby as runs
+
     Carefully read the query and provide the required fields in the json format. If you do the query correctly, you will be rewarded with 100$ in your account. So make sure you do it correctly.
+
+    Reason and breakdown your thought process before providing the json format.
+
+    Return a valid json format, don't add comments in the json format, make sure it is a valid json format and all the fields are in the correct format.
 
     '''
 

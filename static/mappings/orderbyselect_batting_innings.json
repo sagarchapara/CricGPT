@@ -1,0 +1,13 @@
+{
+    "start date": "start",
+    "age at the start of the match": "age",
+    "runs scored": "batted_score",
+    "minutes batted": "minutes",
+    "balls faced": "balls_faced",
+    "boundary fours": "fours",
+    "boundary sixes": "sixes",
+    "batting strike rate": "batting_strike_rate",
+    "batting order position": "batting_position",
+    "method of dismissal": "dismissal",
+    "innings number in match": "innings_number"
+}

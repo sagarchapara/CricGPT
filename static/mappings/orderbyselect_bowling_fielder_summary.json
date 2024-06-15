@@ -1,0 +1,12 @@
+{
+    "fielder effecting the dismissal": "dis_fielder",
+    "playing span against each other": "dis_span",
+    "matches against each other": "dis_matches",
+    "total dismissals": "dis_dismissals",
+    "caught by a fielder": "dis_caught_fielder",
+    "caught by a wicketkeeper": "dis_caught_keeper",
+    "stumped": "dis_stumped",
+    "matches per dismissal": "dis_matches_per_dismissal",
+    "average score upon dismissal": "dis_average",
+    "ducks": "dis_ducks"
+}

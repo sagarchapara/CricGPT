@@ -1,0 +1,11 @@
+{
+    "none": "",
+    "team score": "team_score",
+    "team wickets": "team_wickets",
+    "team overs": "team_overs",
+    "target to win": "target",
+    "lead at the end of the innings": "lead",
+    "average runs per wicket": "team_average",
+    "average runs per six balls": "runs_per_over",
+    "innings number in match": "innings_number"
+}

@@ -1,0 +1,11 @@
+{
+    "none": "",
+    "win/loss ratio": "win_loss_ratio",
+    "percent of matches won": "percentage_won",
+    "percent of matches lost": "percentage_lost",
+    "percent of matches drawn": "percentage_drawn",
+    "percent of matches tied": "percentage_tied",
+    "percent of no results": "percentage_no_result",
+    "average runs per wicket": "team_average",
+    "average runs per six balls": "runs_per_over"
+}

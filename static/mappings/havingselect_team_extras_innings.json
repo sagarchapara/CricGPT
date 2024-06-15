@@ -1,0 +1,14 @@
+{
+    "none": "",
+    "total extras": "extras",
+    "byes": "byes",
+    "leg byes": "legbyes",
+    "wides": "wides",
+    "no balls": "noballs",
+    "penalty runs": "penalties",
+    "team score": "team_score",
+    "total extras as a % of the total": "percent_extras",
+    "team wickets": "team_wickets",
+    "team overs": "team_overs",
+    "innings number in match": "innings_number"
+}

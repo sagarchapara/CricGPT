@@ -1,0 +1,7 @@
+{
+    "start date": "start",
+    "winner of the toss": "toss_winner",
+    "decision by toss winner": "toss_decision",
+    "winner of match": "winner",
+    "result of match": "result"
+}

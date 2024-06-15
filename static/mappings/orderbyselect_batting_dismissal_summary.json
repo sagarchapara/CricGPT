@@ -1,0 +1,16 @@
+{
+    "default": "default",
+    "start date": "start",
+    "total dismissals": "dis_dismissals",
+    "bowled": "dis_bowled",
+    "caught by a fielder": "dis_caught_fielder",
+    "caught by a wicketkeeper": "dis_caught_keeper",
+    "stumped": "dis_stumped",
+    "leg before wicket": "dis_lbw",
+    "hit wicket": "dis_hit_wicket",
+    "run outs": "dis_run_out",
+    "other types of dismissals": "dis_other",
+    "not outs": "dis_not_out",
+    "average score upon dismissal": "dis_average",
+    "ducks": "dis_ducks"
+}

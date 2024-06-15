@@ -1,0 +1,15 @@
+{
+    "bowler effecting the dismissal": "dis_bowler",
+    "playing span against each other": "dis_span",
+    "matches against each other": "dis_matches",
+    "total dismissals": "dis_dismissals",
+    "bowled": "dis_bowled",
+    "caught by a fielder": "dis_caught_fielder",
+    "caught by a wicketkeeper": "dis_caught_keeper",
+    "stumped": "dis_stumped",
+    "leg before wicket": "dis_lbw",
+    "hit wicket": "dis_hit_wicket",
+    "matches per dismissal": "dis_matches_per_dismissal",
+    "average score upon dismissal": "dis_average",
+    "ducks": "dis_ducks"
+}

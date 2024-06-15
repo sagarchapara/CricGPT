@@ -1,0 +1,9 @@
+{
+    "none": "",
+    "runs scored": "batted_score",
+    "minutes batted": "minutes",
+    "balls faced": "balls_faced",
+    "boundary fours": "fours",
+    "boundary sixes": "sixes",
+    "batting strike rate": "batting_strike_rate"
+}

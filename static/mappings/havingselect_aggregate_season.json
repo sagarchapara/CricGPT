@@ -1,0 +1,19 @@
+{
+    "none": "",
+    "match season": "season",
+    "matches played": "matches",
+    "matches won": "won",
+    "matches tied": "tied",
+    "matches drawn": "drawn",
+    "matches with no result": "no_result",
+    "percent of matches won": "percentage_won",
+    "percent of matches lost": "percentage_lost",
+    "percent of matches drawn": "percentage_drawn",
+    "percent of matches tied": "percentage_tied",
+    "percent of no results": "percentage_no_result",
+    "runs scored": "runs",
+    "wickets taken": "wickets",
+    "balls bowled": "balls",
+    "average runs per wicket": "team_average",
+    "average runs per six balls": "runs_per_over"
+}

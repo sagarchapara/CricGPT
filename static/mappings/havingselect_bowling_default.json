@@ -1,0 +1,16 @@
+{
+    "none": "",
+    "matches played": "matches",
+    "innings bowled in": "innings_bowled",
+    "balls bowled": "balls",
+    "overs bowled": "overs",
+    "maidens earned": "maidens",
+    "runs conceded": "conceded",
+    "wickets taken": "wickets",
+    "bowling average": "bowling_average",
+    "economy rate": "economy_rate",
+    "bowling strike rate": "bowling_strike_rate",
+    "four wickets in an inns": "four_plus_wickets",
+    "five wickets in an inns": "five_wickets",
+    "ten wickets in a match": "ten_wickets"
+}

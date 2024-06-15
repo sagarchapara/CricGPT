@@ -1,113 +1,154 @@
 import re
 import json
+import asyncio
 from api_clients.llm import OpenAIClient
 from api_clients.cricinfo_client import CricInfoClient
-from data_models.cricinfo import CricInfoAllRound, get_class_description
+from utils.utils import load_json
 from id_mapper import IdMapper
-
-
+from execution.allround import AllRound
+from execution.player import Player
 
 
 class CricGPT:
     def __init__(self, model: str):
         self.openai_client = OpenAIClient(model=model)
         self.cricinfo_client = CricInfoClient()
-        self.id_mapper = IdMapper()
+        self.id_mapper = IdMapper(self.cricinfo_client)
 
-    async def get_result(self,  query: str):
+    async def execute(self, query):
+        # get the breakdown parts of the query
+        planning_prompt = get_planner_prompt()
 
-        system_prompt = get_batting_stats_prompt()
-
-        response = await self.openai_client.get_response(system_prompt=system_prompt, query=query)
+        breakdown_parts = await self.openai_client.get_response(system_prompt=planning_prompt, query=query)
 
         #load the response to json
-        response = load_json(response)
+        breakdown_parts = load_json(breakdown_parts)
 
-        print(response)
+        print(breakdown_parts)
 
-        #now go through any string fields and convert them to id's
-        if response:
-            response = CricInfoAllRound.populate_ids(response, self.id_mapper)
+        # now go through each breakdown part and get the result
+        results = []
+        tasks = []
+        for breakdown_part in breakdown_parts:
+            tasks.append(self.process_breakdown_part(breakdown_part))
 
-        print(response)
+        results = await asyncio.gather(*tasks)
 
-        #load the cricinfo batting
-        batting = CricInfoAllRound.model_validate(response)
+        #finally summarize the results
+        summary_prompt = get_summary_prompt()
+        summary_query = self.build_summary_query(query, results)
 
-        #now get the url
-        query_url = batting.get_query_url()
+        summary = await self.openai_client.get_response(system_prompt=summary_prompt, query=summary_query)
 
-        print(query_url)
-
-        #query the cricinfo site
-
-        result = await self.cricinfo_client.get_data(query_url)
-
+        return {
+            "summary": summary,
+            "url": [result["url"] for result in results]
+        }
+    
+    async def process_breakdown_part(self, breakdown_part):
+        if breakdown_part["type"] == "player":
+            player_stats = Player(self.openai_client, self.cricinfo_client, self.id_mapper)
+            result = await player_stats.execute(breakdown_part)
+        else:
+            stats = AllRound(self.openai_client, self.cricinfo_client, self.id_mapper)
+            result = await stats.execute(breakdown_part)
         return result
 
+    def build_summary_query(self, query, results):
+        summary_query = f'''Here is the user query: {query}\n'''
+
+        for result in results:
+            summary_query += f'''Here is the breakdown part: {result["query"]}\n'''
+
+            #take one first 5 results
+            summary_query += f'''Here is the result: {result["result"][:20]}\n'''
+        
+        return summary_query
 
 
 @staticmethod
-def get_batting_stats_prompt():
-    return f'''
-    You are an intelligent AI agent, whose reponsibilty is to provide a json structure that can be used to query the cricinfo website for batting stats.
-    These are the follwing fields that you need to provide depending on the query:
+def get_planner_prompt():
+    return f''' 
+    You are an intelligent AI agent, whose responsibilty is to break the given query into smaller parts and provide the json structure that can be used to query the cricinfo website for the required stats.
 
-    {get_class_description(CricInfoAllRound)}
+    Each breakdown part is either one of the following:
+    1. Player Stats:
+        If the query is related to player stats, then you need to provide the json structure that can be used to query the cricinfo website for player stats.
+        These are the follwing fields that you need to provide depending on the query:
+        ```json
+        {{
+            "type": "player"
+            "player": "Sachin Tendulkar",
+            "query": "Sachin Tendulkar stats in ODIs"
+        }}
+        ```
+    2. Batting/Bowling/AllRound/Team Stats:
+        If the query is related to batting/bowling/allround for multiple players/team related stats, then you need to provide the json structure that can be used to query the cricinfo website for the required stats.
+        These are the following fields that you need to provide depending on the query:
+        ```json
+        {{
+            "type": "batting",
+            "query": "Highest Individual Score in ODIs",
+        }}
+        ```
+    
+    Finally you output the breakdown parts json structure that can be used to query the cricinfo website for the required stats in a list
+    
+    For example:
 
-    All fields are optional, so you need to only fill the required fields from the query. Only fill, if the it is absolutely necessary.
+    Here is the output for the query "Compare Sachin Tendulkar and Ricky Ponting stats in ODIs and Highest Individual Score in ODIs":
+    
+    ```json
+    [
+        {{ "type": "player", "player": "Sachin Tendulkar", "query": "Sachin Tendulkar stats in ODIs" }},
+        {{ "type": "player", "player": "Ricky Ponting", "query": "Sachin Tendulkar stats in ODIs" }}
+    ]
 
-    Field output type is also mentioned, so if multiple values are asked then you need to provide a list of values.
+    Another Example:
 
-    Fields like countries, players, captains etc are in Integer format, which you don't have the id's for, so you need to provide the names of the countries, players, captains... I will convert them to id's before querying the cricinfo website.
-
-    You need to provide output in json format.
+    Here is the output for the query  "India stats from 1990 - 2024 per decade vs pakistan"
 
     ```json
-    {{
-        "captain_involve": ["MS Dhoni", "Virat Kohli"],
-        "runs_scored": [100, 200],
-        "batting_position": [1, 2],
-        "dismissal": [1, 2, 3],
-        "dismissed": 1,
-        "host": ["India"],
-        ...
-    }}
+    [
+        {{ "type": "team", "query": "India stats 1990 - 2000" }},
+        {{ "type": "team", "query": "India stats 2000 - 2010" }},
+        {{ "type": "team", "query": "India stats 2010 - 2024" }},
+    ]
     ```
-    Few examples of the queries are:
 
-    1. Highest Individual Score in ODIs 
-    {{
-        class_ = 2,
-        orderby=high_score
-    }}
+    Player should be a single player name, don't provide multiple players in one query.
 
-    Reasoning: We need to find the highest individual score in ODIs, so we need to provide the class as 2 as it is ODIs and orderby as high_score as it is per inning high score stats
+    For most of them you don't need to breakdown the query.
 
-    2. Most Runs in a Calendar Year
-    {{
-        view=year,
-        orderby=runs
-    }}
+    For example for the same above query "India stats from 1990 - 2024 vs pakistan", you don't need to breakdown the query as it is already continous time period and you can directly query the cricinfo website for the required stats.
 
-    Reasoning: We need to find the most runs in a calendar year, so we need to provide the view as year and orderby as runs
+    Other example is one batter/bowler vs multiple other batters/bowlers, you don't need to breakdown the query as we can already handle multiple opponents in the query.
+
+    Same for other likes multiple countries, formats, hosts, we can handle these in one query directly, so no need to breakdown the query.
+
+    So if you understand from above examples, we cannot handle many - many queries directly, but we can handle one - many queries, so breakdown many - many queries to multiple individual one - many queries.
+
+    Please remeber we can one to many query directly, so no need to breakdown the query, it will just increase the complexity of the query.
 
     Carefully read the query and provide the required fields in the json format. If you do the query correctly, you will be rewarded with 100$ in your account. So make sure you do it correctly.
 
-    Reason and breakdown your thought process before providing the json format.
+    Reason and breakdown your thought process before providing the json format. Don't add any comments in the json format, make sure it is a valid json format and all the fields are in the correct format.
 
-    Return a valid json format, don't add comments in the json format, make sure it is a valid json format and all the fields are in the correct format.
-
-    '''
+    Always return a list, even if it is a single breakdown part, return it as a list.
+'''
 
 @staticmethod
-def load_json(response: str):
-    #find the json markdown in reponse
-    json_str = re.search(r'```json(.*?)```', response, re.DOTALL)
-    if json_str:
-        json_str = json_str.group(1)
-        try:
-            return json.loads(json_str)
-        except json.JSONDecodeError:
-            print("Error in decoding the json")
-            return None
+def get_summary_prompt():
+    return f'''
+    You are an intelligent AI agent, whose reponsibilty is to summarize the results of the queries that you have executed for the given user query
+    
+    You carefully read the results of the queries and provide a summary of the results.
+
+    Suppose if the query is expecting a one liner answer then you need to provide a one liner answer, if the query is expecting a detailed answer then you need to provide a detailed answer.
+
+    If the query ouput is table you return the table in the markdown format, but only with the relavent fields, not all fields
+
+    You will be rewarded with 100$ in your account if you provide the correct summary of the results, So all the best.
+
+    Please nicely format it in table format for clear understanding.
+    '''

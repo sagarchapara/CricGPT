@@ -1,0 +1,9 @@
+{
+    "none": "",
+    "start date": "start",
+    "fall of wicket number": "fow_wicket",
+    "partnership runs": "fow_score",
+    "team score at partnership start": "fow_in",
+    "team score at partnership end": "fow_out",
+    "innings number in the match": "fow_innings_number"
+}

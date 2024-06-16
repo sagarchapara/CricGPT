@@ -10,10 +10,11 @@ from execution.player import Player
 
 
 class CricGPT:
-    def __init__(self, model: str):
-        self.openai_client = OpenAIClient(model=model)
-        self.cricinfo_client = CricInfoClient()
-        self.id_mapper = IdMapper(self.cricinfo_client)
+    def __init__(self, model: str, openai_client: OpenAIClient, cricinfo_client: CricInfoClient, id_mapper: IdMapper):
+        self.openai_client = openai_client
+        self.cricinfo_client = cricinfo_client
+        self.id_mapper = id_mapper
+        self.model = model
 
     async def execute(self, query):
         # get the breakdown parts of the query
@@ -42,7 +43,8 @@ class CricGPT:
 
         return {
             "summary": summary,
-            "url": [result["url"] for result in results]
+            "urls": [result["url"] for result in results],
+            "queries": breakdown_parts
         }
     
     async def process_breakdown_part(self, breakdown_part):

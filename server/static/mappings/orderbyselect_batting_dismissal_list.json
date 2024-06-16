@@ -1,0 +1,8 @@
+{
+    "start date": "start",
+    "methods of dismissal": "dis_how_out",
+    "fielder effecting the dismissal": "dis_fielder",
+    "bowler effecting the dismissal": "dis_bowler",
+    "batter runs in innings": "dis_runs",
+    "innings number in the match": "dis_innings_number"
+}

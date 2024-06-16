@@ -1,0 +1,10 @@
+{
+    "none": "",
+    "innings fielded": "innings_fielded",
+    "fielding dismissals made": "dismissals",
+    "catches taken": "caught",
+    "stumpings made": "stumped",
+    "catches as a keeper": "caught_keeper",
+    "catches as a fielder": "caught_fielder",
+    "dismissals per innings": "dismissals_per_inns"
+}

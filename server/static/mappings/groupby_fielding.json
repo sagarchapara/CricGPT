@@ -1,0 +1,16 @@
+{
+    "individual players": "default",
+    "each team innings": "innings",
+    "each match": "match",
+    "each series": "series",
+    "each tour": "tour",
+    "team": "team",
+    "opposition team": "opposition",
+    "each ground": "ground",
+    "host country": "host",
+    "host continent": "continent",
+    "year of match start": "year",
+    "season": "season",
+    "decade of match": "decade",
+    "overall aggregate": "overall"
+}

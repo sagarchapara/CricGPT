@@ -1,0 +1,9 @@
+{
+    "none": "",
+    "batting average": "batting_average",
+    "batting strike rate": "batting_strike_rate",
+    "bowling average": "bowling_average",
+    "economy rate": "economy_rate",
+    "bowling strike rate": "bowling_strike_rate",
+    "dismissals per innings": "dismissals_per_inns"
+}

@@ -1,0 +1,19 @@
+{
+    "default": "default",
+    "start date": "start",
+    "matches played": "matches",
+    "innings batted": "innings",
+    "not outs": "notouts",
+    "batting dismissals": "outs",
+    "runs scored": "runs",
+    "minutes batted": "minutes",
+    "balls faced": "balls_faced",
+    "highest innings score": "high_score",
+    "batting average": "batting_average",
+    "batting strike rate": "batting_strike_rate",
+    "hundreds scored": "hundreds",
+    "scores of fifty or more": "fifty_plus",
+    "ducks scored": "ducks",
+    "boundary fours": "fours",
+    "boundary sixes": "sixes"
+}

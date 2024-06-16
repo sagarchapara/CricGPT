@@ -1,0 +1,14 @@
+{
+    "year of match start": "year",
+    "partner names": "partners",
+    "number of partnerships": "fow_innings",
+    "unbroken partnerships (not outs)": "fow_notouts",
+    "broken partnerships (outs)": "fow_outs",
+    "total partnership runs": "fow_runs",
+    "highest partnership": "fow_high_score",
+    "average partnership per dismissal": "fow_average",
+    "balls faced": "fow_balls_faced",
+    "partnership run rate": "fow_run_rate",
+    "century partnerships": "fow_hundreds",
+    "fifty runs and over": "fow_fifty_plus"
+}

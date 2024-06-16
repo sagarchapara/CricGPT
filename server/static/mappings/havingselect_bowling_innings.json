@@ -1,0 +1,11 @@
+{
+    "none": "",
+    "overs bowled": "overs",
+    "maidens earned": "maidens",
+    "runs conceded": "conceded",
+    "wickets taken": "wickets",
+    "bowling average": "bowling_average",
+    "economy rate": "economy_rate",
+    "bowling strike rate": "bowling_strike_rate",
+    "bowling order position": "bowling_position"
+}

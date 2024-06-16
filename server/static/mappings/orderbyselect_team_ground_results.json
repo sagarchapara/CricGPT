@@ -1,0 +1,9 @@
+{
+    "start date": "start",
+    "winner of match": "winner",
+    "result of match": "result",
+    "result margin": "amount",
+    "balls remaining after winning": "amount_balls",
+    "result of the toss": "toss",
+    "batting or fielding first": "batting_fielding_first"
+}

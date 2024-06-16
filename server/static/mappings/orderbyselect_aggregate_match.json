@@ -1,0 +1,8 @@
+{
+    "start date": "start",
+    "runs scored": "runs",
+    "wickets taken": "wickets",
+    "balls bowled": "balls",
+    "average runs per wicket": "team_average",
+    "average runs per six balls": "runs_per_over"
+}

@@ -1,0 +1,14 @@
+{
+    "start date": "start",
+    "matches played": "matches",
+    "total extras": "extras",
+    "byes": "byes",
+    "leg byes": "legbyes",
+    "wides": "wides",
+    "no balls": "noballs",
+    "penalty runs": "penalties",
+    "runs scored": "runs",
+    "total extras as a % of the total": "percent_extras",
+    "wickets taken": "wickets",
+    "balls bowled": "balls"
+}

@@ -34,9 +34,7 @@ class CricInfoAllRound(BaseModel):
     player_age: list[int]   # from and to age, [from, to], if only from then [from, -1], if only to then [-1, to]
     innings_number: list[int]   # list of innings numbers {"1st innings":1,"2nd innings":2,"3rd innings":3,"4th innings":4}
     player_involve: list[int]   # list of players that are involved in the match
-    player_not_involve: list[int]   # list of players that are not involved in the match
     captain_involve: list[int]   # list of captains that are involved in the match
-    captain_not_involve: list[int]   # list of captains that are not involved in the match
     runs_scored: list[int]   # Runs scored in innings [from, to], this is not a overall runs scored, should be only used for per innings filter
     batting_position: list[int]   # from and to batting position, should be only used for per innings filter
     dismissal: list[int]   # list of dismissals {"0":"all types","1":"caught","2":"bowled","3":"leg before wicket","4":"run out","5":"stumped","6":"hit wicket","7":"handled the ball","8":"obstructing the field","9":"retired out","10":"not out","11":"retired not out (hurt)"}
@@ -164,8 +162,8 @@ class CricInfoPlayer(BaseModel):
     result: list[int]  # {"won match":1,"lost match":2,"tied match":3,"drawn match":4,"no result":5}
     toss: int   # toss results, 0 for win, 1 for loss
     batting_fielding_first: int]   # batting or fielding first, 0 for batting, 1 for fielding
-    captain: int   # 1 for captain, 0 for not captain
-    keeper: int   # 1 for keeper, 0 for not keeper
+    captain: int   # If the current player is captain 1 for captain, 0 for not captain, Only the current query player not the other involved players
+    keeper: int   # If the current player is keeper 1 for keeper, 0 for not keeper, Only the current query player not the other involved players
     debut_or_last: list[int]  # 0 career debut  1 last career match  2 team debut  3 last match for team
     player_age: list[int]  # from and to age, [from, to], if only from then [from, -1], if only to then [-1, to]
     innings_number: list[int]  # list of innings numbers {"1st innings":1,"2nd innings":2,"3rd innings":3,"4th innings":4}

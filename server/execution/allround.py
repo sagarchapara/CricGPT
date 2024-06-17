@@ -2,7 +2,8 @@ from api_clients.cricinfo_client import CricInfoClient
 from api_clients.llm import OpenAIClient
 from data_models.cricinfo import CricInfoAllRound, get_class_description, populate_ids
 from id_mapper import IdMapper
-from utils.utils import load_json
+from utils.utils import load_json, filter_results
+from utils.prompts import get_summary_promt
 import json
 
 class AllRound:
@@ -10,6 +11,17 @@ class AllRound:
         self.openai_client = openai_client
         self.cricinfo_client = cricinfo_client
         self.id_mapper = id_mapper
+
+    async def get_summary(self, query, result: list) -> str:
+        system_prompt = get_summary_promt()
+
+        user_query = f"User query: {query}\n"
+
+        user_query += "\n".join([f"Result: {res}" for res in result])
+
+        summary = await self.openai_client.get_response(system_prompt=system_prompt, query=user_query)
+
+        return summary
 
     async def execute(self, input_data: dict):
         system_prompt = get_stats_prompt()
@@ -65,8 +77,12 @@ class AllRound:
 
         result = await self.cricinfo_client.get_search_data(query_url)
 
+        result = filter_results(result)
+
+        summary = await self.get_summary(query, result)
+
         return {
-            "result": result,
+            "result": summary,
             "query": query,
             "url": query_url
         }

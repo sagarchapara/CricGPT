@@ -27,7 +27,7 @@ openai_client = OpenAIClient(model="gpt4o")
 
 class Query(BaseModel):
     query: str
-    history: list[str]
+    history: list[dict]
 
 class Response(BaseModel):
     response: str
@@ -38,10 +38,10 @@ class Response(BaseModel):
 @app.post("/stats")
 async def process_data(data: Query):
     cricgpt = CricGPT(model="gpt4o", openai_client=openai_client, cricinfo_client=cricinfo_client, id_mapper=id_mapper)
-    response = await cricgpt.execute(data.query)
+    response = await cricgpt.execute(data.query, data.history)
     return response
     
 
 # Run the FastAPI server
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run("app:app", host="0.0.0.0", port=5000)

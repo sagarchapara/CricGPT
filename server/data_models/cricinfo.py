@@ -148,23 +148,23 @@ class CricInfoPlayer(BaseModel):
     player: int # id of the player
     class_: int # 1 for test, 2 for odi, 3 for t20, 11 for all, choose 11 for any two also, don't give list of values, you must always provide this field
     opposition: list[int]   # list of opposition countries
-    home_or_away: list[int]  # 0, 1, 2 for home, away, neutral
+    home_or_away: list[int]  # 1, 2, 3 for home, away, neutral
     host: list[int]  # list of host countries
     continent: list[int]  # list of continents
     ground: list[int]  # list of grounds
-    span: list[str]   # from and to date
+    span: list[str]   # from and to date [from, to], should of format dd-mm-yyyy
     season: list[str]   # list of seasons    
     series: list[int]  # list of series
     trophy: list[int]  # list of trophies
-    tournament_type: list[int]  # list of tournament types, 0 for 2 team, 1 for 3-4 team, 2 for 5+ teams
+    tournament_type: list[int]  # list of tournament types, 2 for 2 team, 3 for 3-4 team, 5 for 5+ teams
     final_type: list[int]  # list of final types {"all types":"","tournament finals":"1","tournament semi-finals":"3","tournament quarter-finals":"4","preliminary quarter-finals":"5","preliminary matches":"0"}
     floodlit: list[int]   # {"day match":1,"day/night match":2,"night match":3}
     result: list[int]  # {"won match":1,"lost match":2,"tied match":3,"drawn match":4,"no result":5}
-    toss: int   # toss results, 0 for win, 1 for loss
-    batting_fielding_first: int]   # batting or fielding first, 0 for batting, 1 for fielding
+    toss: int   # toss results, 1 for win, 2 for loss
+    batting_fielding_first: int]   # batting or fielding first, 1 for batting, 2 for fielding
     captain: int   # If the current player is captain 1 for captain, 0 for not captain, Only the current query player not the other involved players
     keeper: int   # If the current player is keeper 1 for keeper, 0 for not keeper, Only the current query player not the other involved players
-    debut_or_last: list[int]  # 0 career debut  1 last career match  2 team debut  3 last match for team
+    debut_or_last: list[int]  # 1 career debut  2 last career match  3 team debut  4 last match for team
     player_age: list[int]  # from and to age, [from, to], if only from then [from, -1], if only to then [-1, to]
     innings_number: list[int]  # list of innings numbers {"1st innings":1,"2nd innings":2,"3rd innings":3,"4th innings":4}
     player_involve: list[int]  # list of players that are involved in the match

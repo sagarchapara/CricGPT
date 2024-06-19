@@ -8,8 +8,9 @@ import { fetchStats } from './lib/api';
 import MarkdownRenderer from './components/MarkdownRenderer';
 
 type Message = {
-  text: string;
-  sender: 'user' | 'server';
+  content: string;
+  role: "system" | "user";
+  errorText?: boolean;
 };
 
 export default function Home() {
@@ -30,21 +31,21 @@ export default function Home() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (input.trim()) {
-      setMessages([...messages, { text: input, sender: 'user' }]);
+      setMessages([...messages, { content: input, sender: 'user' }]);
       setInput('');
       
       setIsTyping(true);  // Server starts typing
 
       try {
-        const markdownContent = await fetchStats(input, messages.map(message => message.text));
+        const markdownContent = await fetchStats(input, getHistory(messages));
         setMessages(prevMessages => [
           ...prevMessages,
-          { text: markdownContent, sender: 'server' },
+          { content: markdownContent, sender: "system" },
         ]);
       } catch (error) {
         setMessages(prevMessages => [
           ...prevMessages,
-          { text: 'Failed to fetch content', sender: 'server' },
+          { content: 'Failed to fetch content', sender: 'system', errorText: true },
         ]);
       } finally {
         setIsTyping(false);  // Server stops typing
@@ -63,18 +64,18 @@ export default function Home() {
           <div
             key={index}
             className={
-              message.sender === 'server' ? styles.serverMessage : styles.userMessage
+              message.sender === 'system' ? styles.serverMessage : styles.userMessage
             }
           >
             <FontAwesomeIcon
-              icon={message.sender === 'server' ? faRobot : faUser}
+              icon={message.sender === 'system' ? faRobot : faUser}
               className={styles.icon}
             />
             <div className={styles.messageContent}>
-              {message.sender === 'server' ? (
-                <MarkdownRenderer content={message.text} />
+              {message.sender === 'system' ? (
+                <MarkdownRenderer content={message.content} />
               ) : (
-                message.text
+                message.content
               )}
             </div>
           </div>
@@ -106,4 +107,8 @@ export default function Home() {
       </form>
     </div>
   );
+}
+
+function getHistory(messages: Message[]): Message[] {
+  return messages.filter((message) => message.errorText !== true )
 }

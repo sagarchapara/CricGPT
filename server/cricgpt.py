@@ -16,16 +16,25 @@ class CricGPT:
         self.id_mapper = id_mapper
         self.model = model
 
-    async def execute(self, query):
+    async def execute(self, query, history= None):
         # get the breakdown parts of the query
         planning_prompt = get_planner_prompt()
 
-        breakdown_parts = await self.openai_client.get_response(system_prompt=planning_prompt, query=query)
+        breakdown_parts = await self.openai_client.get_response(system_prompt=planning_prompt, query=query, history=history)
+
+        print(breakdown_parts)
 
         #load the response to json
         breakdown_parts = load_json(breakdown_parts)
 
         print(breakdown_parts)
+
+        if breakdown_parts is None or len(breakdown_parts) == 0:
+            return {
+                "summary": "I'm sorry, I can't help you with that query",
+                "urls": [],
+                "queries": [query]
+            }
 
         # now go through each breakdown part and get the result
         results = []
@@ -74,16 +83,25 @@ class CricGPT:
 @staticmethod
 def get_planner_prompt():
     return f''' 
-    You are an intelligent AI agent, whose responsibilty is to break the given query into smaller parts and provide the json structure that can be used to query the cricinfo website for the required stats.
+    You are an intelligent AI agent, whose responsibilty is to identify the user query from the conversation and break the given query into smaller parts and provide the json structure that can be used to query the cricinfo website for the required stats.
+
+    You'll will be provided with the user query + user query history, you need to carefully, use the history to understand the context of the query.
+
+    After understanding the query, if it's related to cricket stats, then you need to breakdown the query into smaller parts, so that we can query the cricinfo website for the required stats.
+
+    If it's not related to cricket stats, Simply reply with "I'm sorry, I can't help you with that query" and return an empty list.
+
+    If the query is related to cricket stats, then you need to breakdown the query into smaller parts, so that we can query the cricinfo website for the required stats.
 
     Currently we can handle one - many queries, so breakdown the many - many queries into multiple one - many queries.
 
     examples of many - many queries are:
 
     1. Compare Sachin Tendulkar and Ricky Ponting stats in ODIs and Highest Individual Score in ODIs
-    2. India stats from 1990 - 2024 per decade vs pakistan
-    3. India vs Australia vs England stats in ODIs
-    4. Sachin Tendulkar vs Ricky Ponting vs Brian Lara stats in ODIs
+    2. India vs Australia vs England stats in ODIs
+    3. Sachin Tendulkar vs Ricky Ponting vs Brian Lara stats in ODIs
+    4. India vs Pakistan stats from 2000 - 2014 and 2015 - 2024
+
 
     But these type of queries need not to be broken down:
 
@@ -130,29 +148,30 @@ def get_planner_prompt():
     
     ```json
     [
-        {{ "type": "player", "player": "Sachin Tendulkar", "query": "Sachin Tendulkar stats in ODIs" }},
-        {{ "type": "player", "player": "Ricky Ponting", "query": "Sachin Tendulkar stats in ODIs" }}
+        {{ "type": "player", "player": "Sachin Tendulkar", "query": "Sachin Tendulkar stats in ODIs sorted by batting average" }},
+        {{ "type": "player", "player": "Ricky Ponting", "query": "Sachin Tendulkar stats in ODIs sorted by batting average" }}
     ]
 
     Another Example:
 
-    Here is the output for the query  "India stats from 1990 - 2024 per decade vs pakistan"
+    Here is the output for the query  "India vs Pakistan stats from 2000 - 2014 and 2015 - 2024"
 
     ```json
     [
-        {{ "type": "other", "query": "India stats 1990 - 2000" }},
-        {{ "type": "other", "query": "India stats 2000 - 2010" }},
-        {{ "type": "other", "query": "India stats 2010 - 2024" }},
+        {{ "type": "other", "query": "India stats 2000 - 2014 yearwise" }},
+        {{ "type": "other", "query": "India stats 2015 - 2024 yearwise" }},
     ]
     ```
 
+    When you are forming the query, be as much specific as possible like in above examples, so that it's easy to understand and compare the results.
+    
     When breaking down the queries, specify clearly in each of them what is the view (innings view or bowler view, or opposition view ...) you are excepting and how to sort the results, so that it's easy to understand and compare the results.
 
     Player should be a single player name, don't provide multiple players in one query.
 
     For most of them you don't need to breakdown the query.
 
-    For example for the same above query "India stats from 1990 - 2024 vs pakistan", you don't need to breakdown the query as it is already continous time period and you can directly query the cricinfo website for the required stats.
+    For example for the same above query "India stats from 1990 - 2024 vs pakistan year wise/decade wise", you don't need to breakdown the query as it is already continous time period and you can directly query the cricinfo website for the required stats.
 
     Other example is one batter/bowler vs multiple other batters/bowlers, you don't need to breakdown the query as we can already handle multiple opponents in the query.
 
@@ -180,5 +199,6 @@ def get_summary_prompt():
     If the query ouput is table you return the table in the markdown format, but only with the relavent fields, not all fields
     If it's a comparision nicely format it into one table/multiple tables for clear understanding and comparison.
     Please nicely format it in table format for clear understanding and ensure you provide the correct references for the results using the urls given.
-    You can provide the urls at the last of the summary, no need to provide at the middle of the summary.
+    Present the results in a clear and concise manner, so that it's easy to understand and compare the results.
+    Make sure you first clearly answer the given query and then include any other relavent information that might be useful for the user, but always answer the query first.
     '''

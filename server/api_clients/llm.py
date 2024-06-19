@@ -12,7 +12,7 @@ class OpenAIClient:
         )
         self.model = model
 
-    async def get_response(self, system_prompt: str, query: str, history: Optional[list[str]] = None):
+    async def get_response(self, system_prompt: str, query: str, history: Optional[list[dict]] = None):
         system_prompt = {"role": "system", "content": system_prompt}
 
         query = {"role": "user", "content": query}
@@ -22,7 +22,9 @@ class OpenAIClient:
 
         # add history
         if history:
-            messages.extend(history)
+            for h in history:
+                if h.get("role") and h.get("content"):
+                    messages.append({"role": h.get("role"), "content": h.get("content")})
         
         # add query
         messages.append(query)

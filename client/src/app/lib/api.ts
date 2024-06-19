@@ -1,6 +1,11 @@
 const API_URL = 'http://127.0.0.1:8000/stats';
 
-export async function fetchStats(query: string, history: string[] | null): Promise<string> {
+type Message = {
+    role: 'user' | 'system';
+    content: string;
+};
+
+export async function fetchStats(query: string, history: Message[] | null): Promise<string> {
     try {
         // Fetch stats from the API using post call
         const response = await fetch(API_URL, {
@@ -10,7 +15,7 @@ export async function fetchStats(query: string, history: string[] | null): Promi
             },
             body: JSON.stringify({
                 "query": query,
-                "history": history
+                "history": history,
             }),
         });
         

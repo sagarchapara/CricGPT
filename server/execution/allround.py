@@ -100,13 +100,17 @@ def get_view_fields_prompt(type: str, view: str) -> str:
 
     groupby_fields_select = f"groupby_{type}"
 
+    groupby_fields = {}
+
     if view == "default":
         # then we need to provide groupby fields
         if type != "aggregate":
-            with open(f"static\\mappings\\{groupby_fields_select}.json", "r") as f:
-                groupby_fields = json.load(f)
-        else:
-            groupby_fields = []
+            try:
+                with open(f"static\\mappings\\{groupby_fields_select}.json", "r") as f:
+                    groupby_fields = json.load(f)
+            except FileNotFoundError:
+                print(f"File not found for {groupby_fields_select}")
+            
             
 
     with open(f"static\\mappings\\{having_select}.json", "r") as f:

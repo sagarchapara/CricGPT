@@ -140,8 +140,6 @@ def get_view_fields_prompt(type: str, view: str) -> str:
     Also you need to provide this optional field:
 
     That is stats are sorted by best to worst, so if you want the worst to best, you can provide the orderbyad field with the value as reverse, orderbyad=reverse
-
-    You might never need it, unless query are for worst batting/bowling stats... like that. Most of the time you won't need it, until explicitly mentioned.
     
     Given these fields, you need to provide the json structure that can be used to query the cricinfo website for the required stats.
     {{
@@ -226,10 +224,33 @@ def get_stats_prompt():
         "class_": 1,
         "type": "batting",
         "player": ["Sachin Tendulkar"],
-        "bowler": ["Shane Warne"],
+        "player_involve": ["Shane Warne"],
         "view": "bowler_summary"
     }}
     ```
+
+    Dhoni stats with 100+ runs in ODIs:
+    ```json
+    {{
+        "class_": 2,
+        "type": "batting",
+        "player": ["MS Dhoni"],
+        "runs_scored": [100, -1],
+        "host": ["India"],
+    }}
+
+    Dhoni's best batting position with min 100 runs in ODIs:
+    ```json
+    {{
+        "class_": 2,
+        "type": "batting",
+        "player": ["MS Dhoni"],
+        "view": "default",
+    }}
+    ```
+    Reasoning: Here we didn't use the runs_scored field, as we are not interested in the runs scored per innings but aggregate/total runs scored by Dhoni in the batting position.
+
+
 
     Carefully read the query and provide the required fields in the json format. If you do the query correctly, you will be rewarded with 100$ in your account. So make sure you do it correctly.
 

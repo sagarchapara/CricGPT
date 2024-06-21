@@ -31,7 +31,7 @@ export default function Home() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (input.trim()) {
-      setMessages([...messages, { content: input, sender: 'user' }]);
+      setMessages([...messages, { content: input, role: 'user' }]);
       setInput('');
       
       setIsTyping(true);  // Server starts typing
@@ -40,12 +40,12 @@ export default function Home() {
         const markdownContent = await fetchStats(input, getHistory(messages));
         setMessages(prevMessages => [
           ...prevMessages,
-          { content: markdownContent, sender: "system" },
+          { content: markdownContent, role: "system" },
         ]);
       } catch (error) {
         setMessages(prevMessages => [
           ...prevMessages,
-          { content: 'Failed to fetch content', sender: 'system', errorText: true },
+          { content: 'Failed to fetch content', role: 'system', errorText: true },
         ]);
       } finally {
         setIsTyping(false);  // Server stops typing
@@ -64,15 +64,15 @@ export default function Home() {
           <div
             key={index}
             className={
-              message.sender === 'system' ? styles.serverMessage : styles.userMessage
+              message.role === 'system' ? styles.serverMessage : styles.userMessage
             }
           >
             <FontAwesomeIcon
-              icon={message.sender === 'system' ? faRobot : faUser}
+              icon={message.role === 'system' ? faRobot : faUser}
               className={styles.icon}
             />
             <div className={styles.messageContent}>
-              {message.sender === 'system' ? (
+              {message.role === 'system' ? (
                 <MarkdownRenderer content={message.content} />
               ) : (
                 message.content

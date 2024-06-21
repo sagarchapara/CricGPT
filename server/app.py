@@ -38,7 +38,7 @@ class Response(BaseModel):
 @app.post("/stats")
 async def process_data(data: Query):
     cricgpt = CricGPT(model="gpt4o", openai_client=openai_client, cricinfo_client=cricinfo_client, id_mapper=id_mapper)
-    response = await cricgpt.execute(data.query, data.history)
+    response = await cricgpt.execute(data.query)
     return response
     
 

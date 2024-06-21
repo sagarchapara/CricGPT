@@ -189,8 +189,8 @@ def get_view_fields_prompt(type: str, view: str) -> str:
 
     {{
         "groupby": "<groupby>", # only provide the values given in the fields list if view is default
-        "result_qualifications": "<result_qualification>", # only provide the values given in the fields list,
-        "qual_value": [from, to],
+        "result_qualifications": "<result_qualification>", # only provide the values given in the fields list, empty if not required
+        "qual_value": [from, to] of the result_qualification field, empty if not required
         "orderby": "<order by>",
         "orderbyad": <orderbyad> # optional field if you want to reverse the order
     }}
@@ -264,6 +264,25 @@ def get_stats_prompt():
 
     Reasoning: We need to find the stats of India in 2021, so we need to provide the team as India and span as the year 2021 and type as team as we are looking for team stats
 
+    4. Sachin stats when he scored 100s
+    {{
+        'type': 'batting',
+        'player': ['Sachin Tendulkar'],
+        'runs_scored': [100, -1]
+    }}
+
+    Reasoning: We need to find the stats of Sachin when he scored 100s, so we need to provide the player as Sachin Tendulkar and runs_scored as 100 and -1 as we are looking for the stats when he scored 100s per innings and type as batting as we are looking for batting stats
+
+    5. Indian players in 2021 with min 1000 runs
+    {{
+        'type': 'batting',
+        'team': ['India'],
+        'span': ['01-01-2021', '31-12-2021'],
+    }}
+
+    Reasoning: We need to find the Indian players in 2021 with min 1000 runs, so we need to provide the team as India and span as the year 2021 and type as batting as we are looking for batting stats, here we are not providing the runs_scored as it is inninig wise stats not the overall stats.
+
+    Don't fill per inning stats in the overall stats, these will be taken care in another query.
 
     Carefully read the query and provide the required fields in the json format. If you do the query correctly, you will be rewarded with 100$ in your account. So make sure you do it correctly.
 

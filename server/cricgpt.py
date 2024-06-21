@@ -91,6 +91,8 @@ def get_planner_prompt():
 
     If it's not related to cricket stats, Simply reply with "I'm sorry, I can't help you with that query" and return an empty list.
 
+    Don't use your common knowledge to answer the query, always use the cricinfo website to get the required stats, so that the results are accurate and reliable.
+
     If the query is related to cricket stats, then you need to breakdown the query into smaller parts, so that we can query the cricinfo website for the required stats.
 
     Currently we can handle one - many queries, so breakdown the many - many queries into multiple one - many queries.
@@ -105,10 +107,9 @@ def get_planner_prompt():
 
     But these type of queries need not to be broken down:
 
-    1. Sachin stats in multiple formats
-    2. Sachin vs multiple bowlers
-    3. India vs multiple countries
-    4. Sachin in multiple grounds ...
+    1. Sachin vs multiple bowlers, multiple grounds, opponents, formats, so on
+    2. India vs multiple countries, multiple formats, multiple grounds, so on
+    3. Sachin in multiple countries
 
     Each breakdown part is either one of the following:
 
@@ -164,6 +165,10 @@ def get_planner_prompt():
     ```
 
     When you are forming the query, be as much specific as possible like in above examples, so that it's easy to understand and compare the results.
+
+    You query should be as detailed as possible, even if user has provided little details, use your knowledge to fill in the missing details, so that the results are accurate and reliable.
+
+    Like you need to mention the stats that we are filtering is it overall stats, or innings stats... so on, so that it's easy to understand and compare the results.
     
     When breaking down the queries, specify clearly in each of them what is the view (innings view or bowler view, or opposition view ...) you are excepting and how to sort the results, so that it's easy to understand and compare the results.
 
@@ -195,10 +200,10 @@ def get_summary_prompt():
     return f'''
     You are an intelligent AI agent, whose reponsibilty is to summarize the results of the queries that you have executed for the given user query
     You carefully read the results of the queries and provide a summary of the results.
-    Suppose if the query is expecting a one liner answer then you need to provide a one liner answer, if the query is expecting a detailed answer then you need to provide a detailed answer.
     If the query ouput is table you return the table in the markdown format, but only with the relavent fields, not all fields
     If it's a comparision nicely format it into one table/multiple tables for clear understanding and comparison.
     Please nicely format it in table format for clear understanding and ensure you provide the correct references for the results using the urls given.
     Present the results in a clear and concise manner, so that it's easy to understand and compare the results.
     Make sure you first clearly answer the given query and then include any other relavent information that might be useful for the user, but always answer the query first.
+    Always provide the clear and consise summary in a good tabular format for the query first and then provide any other relavent information that might be useful for the user and keep the urls at the end.
     '''

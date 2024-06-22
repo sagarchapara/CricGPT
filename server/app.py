@@ -27,7 +27,7 @@ openai_client = OpenAIClient(model="gpt4o")
 
 class Query(BaseModel):
     query: str
-    history: list[str]
+    history: list[dict]
 
 class Response(BaseModel):
     response: str
@@ -44,4 +44,4 @@ async def process_data(data: Query):
 
 # Run the FastAPI server
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run("app:app", host="0.0.0.0", port=5000)

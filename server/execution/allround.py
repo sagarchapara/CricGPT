@@ -2,7 +2,8 @@ from api_clients.cricinfo_client import CricInfoClient
 from api_clients.llm import OpenAIClient
 from data_models.cricinfo import CricInfoAllRound, get_class_description, populate_ids
 from id_mapper import IdMapper
-from utils.utils import load_json
+from utils.utils import load_json, filter_results
+from utils.prompts import get_summary_promt
 import json
 
 class AllRound:
@@ -10,6 +11,17 @@ class AllRound:
         self.openai_client = openai_client
         self.cricinfo_client = cricinfo_client
         self.id_mapper = id_mapper
+
+    async def get_summary(self, query, result: list) -> str:
+        system_prompt = get_summary_promt()
+
+        user_query = f"User query: {query}\n"
+
+        user_query += "\n".join([f"Result: {res}" for res in result])
+
+        summary = await self.openai_client.get_response(system_prompt=system_prompt, query=user_query)
+
+        return summary
 
     async def execute(self, input_data: dict):
         system_prompt = get_stats_prompt()
@@ -65,8 +77,12 @@ class AllRound:
 
         result = await self.cricinfo_client.get_search_data(query_url)
 
+        result = filter_results(result)
+
+        summary = await self.get_summary(query, result)
+
         return {
-            "result": result,
+            "result": summary,
             "query": query,
             "url": query_url
         }
@@ -84,13 +100,17 @@ def get_view_fields_prompt(type: str, view: str) -> str:
 
     groupby_fields_select = f"groupby_{type}"
 
+    groupby_fields = {}
+
     if view == "default":
         # then we need to provide groupby fields
         if type != "aggregate":
-            with open(f"static\\mappings\\{groupby_fields_select}.json", "r") as f:
-                groupby_fields = json.load(f)
-        else:
-            groupby_fields = []
+            try:
+                with open(f"static\\mappings\\{groupby_fields_select}.json", "r") as f:
+                    groupby_fields = json.load(f)
+            except FileNotFoundError:
+                print(f"File not found for {groupby_fields_select}")
+            
             
 
     with open(f"static\\mappings\\{having_select}.json", "r") as f:
@@ -169,8 +189,8 @@ def get_view_fields_prompt(type: str, view: str) -> str:
 
     {{
         "groupby": "<groupby>", # only provide the values given in the fields list if view is default
-        "result_qualifications": "<result_qualification>", # only provide the values given in the fields list,
-        "qual_value": [from, to],
+        "result_qualifications": "<result_qualification>", # only provide the values given in the fields list, empty if not required
+        "qual_value": [from, to] of the result_qualification field, empty if not required
         "orderby": "<order by>",
         "orderbyad": <orderbyad> # optional field if you want to reverse the order
     }}
@@ -244,6 +264,25 @@ def get_stats_prompt():
 
     Reasoning: We need to find the stats of India in 2021, so we need to provide the team as India and span as the year 2021 and type as team as we are looking for team stats
 
+    4. Sachin stats when he scored 100s
+    {{
+        'type': 'batting',
+        'player': ['Sachin Tendulkar'],
+        'runs_scored': [100, -1]
+    }}
+
+    Reasoning: We need to find the stats of Sachin when he scored 100s, so we need to provide the player as Sachin Tendulkar and runs_scored as 100 and -1 as we are looking for the stats when he scored 100s per innings and type as batting as we are looking for batting stats
+
+    5. Indian players in 2021 with min 1000 runs
+    {{
+        'type': 'batting',
+        'team': ['India'],
+        'span': ['01-01-2021', '31-12-2021'],
+    }}
+
+    Reasoning: We need to find the Indian players in 2021 with min 1000 runs, so we need to provide the team as India and span as the year 2021 and type as batting as we are looking for batting stats, here we are not providing the runs_scored as it is inninig wise stats not the overall stats.
+
+    Don't fill per inning stats in the overall stats, these will be taken care in another query.
 
     Carefully read the query and provide the required fields in the json format. If you do the query correctly, you will be rewarded with 100$ in your account. So make sure you do it correctly.
 

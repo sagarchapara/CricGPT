@@ -12,7 +12,7 @@ class CricInfoClient:
         }
     
     
-    async def get_search_data(self, url):
+    async def get_search_data(self, url, class_name: str = None):
 
         # Send a GET request to the URL
         async with aiohttp.ClientSession() as session:
@@ -25,34 +25,18 @@ class CricInfoClient:
         # Find all tables with class 'engineTable'
         tables = soup.find_all('table', class_='engineTable')
 
-        # Find the table that contains rows with class 'data1'
-        table = None
-        for t in tables:
-            if t.find('tr', class_='data1') and t.find('tr', class_='headlinks'):
-                table = t
-                break
-
-        headers = []
-        header_row = table.find('tr', class_='headlinks')
-        for th in header_row.find_all('th'):
-            header_text = th.get_text(strip=True)
-            if header_text:  # Skip empty headers
-                headers.append(header_text)
-
-        # Extract player data from the table rows
         results = []
-        for row in table.find_all('tr', class_='data1'):
-            columns = row.find_all('td')
 
-            if len(columns) == 1 and not columns[0].get_text(strip=True):
-                # Skip empty rows
-                continue
+        if class_name == "player":
+            carrer_summary = CricInfoClient.extract_table_data(tables, class_="head")
+            results.extend(carrer_summary)
+        
+        stats = CricInfoClient.extract_table_data(tables)
 
-            row = {headers[i]: columns[i].get_text(strip=True) for i in range(len(headers))}
-            results.append(row)
+        results.extend(stats)
 
         return results
-    
+
 
     async def get_cricinfo_player(self, player: str):
 
@@ -164,3 +148,34 @@ class CricInfoClient:
             print("Couldn't find 'url' parameter in the query string")
 
         return None, None # If no information found
+    
+    @staticmethod
+    def extract_table_data(tables, class_ = "headlinks"):
+        # Find the table that contains rows with class 'data1' and 'headlinks'
+        table = None
+        for t in tables:
+            if t.find('tr', class_='data1') and t.find('tr', class_=class_):
+                table = t
+                break
+
+        headers = []
+        header_row = table.find('tr', class_=class_)
+        for th in header_row.find_all('th'):
+            header_text = th.get_text(strip=True)
+            if header_text == None :
+                header_text = ""
+            headers.append(header_text)
+
+        # Extract player data from the table rows
+        results = []
+        for row in table.find_all('tr', class_='data1'):
+            columns = row.find_all('td')
+
+            if len(columns) == 1 and not columns[0].get_text(strip=True):
+                # Skip empty rows
+                continue
+
+            row = {headers[i]: columns[i].get_text(strip=True) for i in range(len(headers))}
+            results.append(row)
+
+        return results

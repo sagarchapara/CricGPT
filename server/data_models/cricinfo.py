@@ -34,9 +34,7 @@ class CricInfoAllRound(BaseModel):
     player_age: list[int]   # from and to age, [from, to], if only from then [from, -1], if only to then [-1, to]
     innings_number: list[int]   # list of innings numbers {"1st innings":1,"2nd innings":2,"3rd innings":3,"4th innings":4}
     player_involve: list[int]   # list of players that are involved in the match
-    player_not_involve: list[int]   # list of players that are not involved in the match
     captain_involve: list[int]   # list of captains that are involved in the match
-    captain_not_involve: list[int]   # list of captains that are not involved in the match
     runs_scored: list[int]   # Runs scored in innings [from, to], this is not a overall runs scored, should be only used for per innings filter
     batting_position: list[int]   # from and to batting position, should be only used for per innings filter
     dismissal: list[int]   # list of dismissals {"0":"all types","1":"caught","2":"bowled","3":"leg before wicket","4":"run out","5":"stumped","6":"hit wicket","7":"handled the ball","8":"obstructing the field","9":"retired out","10":"not out","11":"retired not out (hurt)"}
@@ -47,6 +45,9 @@ class CricInfoAllRound(BaseModel):
     bowling_position: list[int]   # from and to bowling position [from, to]
     catches_taken: list[int]   # Catches taken in innings [from, to] 
     stumpings_made: list[int]   # Stumpings made in innings [from, to]
+
+    Above In innings like runs_scored, balls_bowled, runs_conceded, wickets_taken, catches_taken, stumpings_made stats are only for the innings wise filter, should not be used for overall stats
+    that is they should be used for queries like number of matches where player bowled more than 50 balls, or number of matches where player scored more than 50 runs etc not queries like min 1000 runs in career, min 100 wickets in total etc
 
     The following fields are most important, as they decide how the stats are shown
 
@@ -121,16 +122,16 @@ class CricInfoAllRound(BaseModel):
     player_not_involve: Optional[list[int]] = None  # list of players that are not involved in the match #TODO: need to check the format
     captain_involve: Optional[list[int]] = None  # list of captains that are involved in the match
     captain_not_involve: Optional[list[int]] = None  # list of captains that are not involved in the match
-    runs_scored: Optional[list[int]] = None  # Runs scored in innings [from, to] if only from then [from, -1], if only to then [-1, to]
+    runs_scored: Optional[list[int]] = None  # Runs scored in per innings [from, to] if only from then [from, -1], if only to then [-1, to]
     batting_position: Optional[list[int]] = None  # from and to batting position [from, to] if only from then [from, -1], if only to then [-1, to]
     dismissal: Optional[list[int]] = None  # list of dismissals, need to main cache
     outs: Optional[int] = None  # {"out":1,"not out/absent/dnb":0}
-    balls_bowled: Optional[list[int]] = None  # Balls bowled in innings [from, to] if only from then [from, -1], if only to then [-1, to]
-    runs_conceded: Optional[list[int]] = None  # Runs conceded in innings [from, to] if only from then [from, -1], if only to then [-1, to]
-    wickets_taken: Optional[list[int]] = None  # Wickets taken in innings [from, to] if only from then [from, -1], if only to then [-1, to]
+    balls_bowled: Optional[list[int]] = None  # Balls bowled in per innings [from, to] if only from then [from, -1], if only to then [-1, to]
+    runs_conceded: Optional[list[int]] = None  # Runs conceded in per innings [from, to] if only from then [from, -1], if only to then [-1, to]
+    wickets_taken: Optional[list[int]] = None  # Wickets taken in per innings [from, to] if only from then [from, -1], if only to then [-1, to]
     bowling_position: Optional[list[int]] = None  # from and to bowling position [from, to] if only from then [from, -1], if only to then [-1, to]
-    catches_taken: Optional[list[int]] = None  # Catches taken in innings [from, to] if only from then [from, -1], if only to then [-1, to]
-    stumpings_made: Optional[list[int]] = None  # Stumpings made in innings [from, to] if only from then [from, -1], if only to then [-1, to]
+    catches_taken: Optional[list[int]] = None  # Catches taken in per innings [from, to] if only from then [from, -1], if only to then [-1, to]
+    stumpings_made: Optional[list[int]] = None  # Stumpings made in per innings [from, to] if only from then [from, -1], if only to then [-1, to]
     view: Optional[str] = None  # How to show the stats {"Overall figures":"","Innings by innings list":"innings","Match totals":"match","Match results":"results","Match and series awards":"awards","Series averages":"series","Ground averages":"ground","By host country":"host","By opposition team":"opposition","By year of match start":"year","By season":"season"}
     groupby: Optional[str] = None  # Group the stats by for individual players, we need not to use this, {"individual players":"","each team innings":"innings","each match":"match","each series":"series","each tour":"tour","team":"team","opposition team":"opposition","each ground":"ground","host country":"host","host continent":"continent","year of match start":"year","season":"season","decade of match":"decade","overall aggregate":"overall"}
     result_qualifications: Optional[str] = None  # We can set min/max values for the results to qualify, possible options
@@ -150,31 +151,35 @@ class CricInfoPlayer(BaseModel):
     player: int # id of the player
     class_: int # 1 for test, 2 for odi, 3 for t20, 11 for all, choose 11 for any two also, don't give list of values, you must always provide this field
     opposition: list[int]   # list of opposition countries
-    home_or_away: list[int]  # 0, 1, 2 for home, away, neutral
+    home_or_away: list[int]  # 1, 2, 3 for home, away, neutral
     host: list[int]  # list of host countries
     continent: list[int]  # list of continents
     ground: list[int]  # list of grounds
-    span: list[str]   # from and to date
+    span: list[str]   # from and to date [from, to], should of format dd-mm-yyyy
     season: list[str]   # list of seasons    
     series: list[int]  # list of series
     trophy: list[int]  # list of trophies
-    tournament_type: list[int]  # list of tournament types, 0 for 2 team, 1 for 3-4 team, 2 for 5+ teams
+    tournament_type: list[int]  # list of tournament types, 2 for 2 team, 3 for 3-4 team, 5 for 5+ teams
     final_type: list[int]  # list of final types {"all types":"","tournament finals":"1","tournament semi-finals":"3","tournament quarter-finals":"4","preliminary quarter-finals":"5","preliminary matches":"0"}
     floodlit: list[int]   # {"day match":1,"day/night match":2,"night match":3}
     result: list[int]  # {"won match":1,"lost match":2,"tied match":3,"drawn match":4,"no result":5}
-    toss: int   # toss results, 0 for win, 1 for loss
-    batting_fielding_first: int]   # batting or fielding first, 0 for batting, 1 for fielding
-    captain: int   # 1 for captain, 0 for not captain
-    keeper: int   # 1 for keeper, 0 for not keeper
-    debut_or_last: list[int]  # 0 career debut  1 last career match  2 team debut  3 last match for team
+    toss: int   # toss results, 1 for win, 2 for loss
+    batting_fielding_first: int]   # batting or fielding first, 1 for batting, 2 for fielding
+    captain: int   # If the current player is captain 1 for captain, 0 for not captain, Only the current query player not the other involved players
+    keeper: int   # If the current player is keeper 1 for keeper, 0 for not keeper, Only the current query player not the other involved players
+    debut_or_last: list[int]  # 1 career debut  2 last career match  3 team debut  4 last match for team
     player_age: list[int]  # from and to age, [from, to], if only from then [from, -1], if only to then [-1, to]
     innings_number: list[int]  # list of innings numbers {"1st innings":1,"2nd innings":2,"3rd innings":3,"4th innings":4}
     player_involve: list[int]  # list of players that are involved in the match
     captain_involve: list[int]  # list of captains that are involved in the match
-    runs_scored: list[int]  # Runs scored in innings [from, to] if only from then [from, -1], if only to then [-1, to]
     batting_position: list[int]  # from and to batting position [from, to] if only from then [from, -1], if only to then [-1, to]
     dismissal: list[int]  # list of dismissals, need to main cache
     outs: int   # {"out":1,"not out/absent/dnb":0}
+
+
+    The below fields are only for the innings wise stats, should not be used for overall stats filtering
+
+    runs_scored: list[int]  # Runs scored in innings [from, to] if only from then [from, -1], if only to then [-1, to]
     balls_bowled: list[int]  # Balls bowled in innings [from, to] if only from then [from, -1], if only to then [-1, to]
     runs_conceded: list[int]  # Runs conceded in innings [from, to] if only from then [from, -1], if only to then [-1, to]
     wickets_taken: list[int]  # Wickets taken in innings [from, to] if only from then [from, -1], if only to then [-1, to]
@@ -182,6 +187,9 @@ class CricInfoPlayer(BaseModel):
     catches_taken: list[int]  # Catches taken in innings [from, to] if only from then [from, -1], if only to then [-1, to]
     stumpings_made: list[int]  # Stumpings made in innings [from, to] if only from then [from, -1], if only to then [-1, to]
     
+    Above In innings like runs_scored, balls_bowled, runs_conceded, wickets_taken, catches_taken, stumpings_made stats are only for the innings wise filter, should not be used for overall stats
+    that is they should be used for queries like number of matches where player bowled more than 50 balls, stats with min 50 runs each match etc not queries like min 1000 runs in career, min 100 wickets in total etc
+
     Field: "type" : str
 
     Possible values:
@@ -201,11 +209,11 @@ class CricInfoPlayer(BaseModel):
     For all types few are common fields
 
     {{
-        "Carrer Summary": "default" # this is for all matches combined for the player, like player stats against all oppositions, all grounds etc
+        "Carrer Summary": "default" # this is for all matches combined for the player, also like player stats against different oppositions etc
         "Innings": "innings" # this is for innings wise stats, used for per innings stats like highest score, best bowling etc
         "Match": "match" # this is for match wise stats, used for match wise stats like runs, wickets etc, innings and matches are different in test, where one match can have 2 innings
         "Series Average": "series" # this is for series wise stats, used for series wise stats like runs, wickets etc
-        "Ground Average": "ground" # this is for ground wise stats, used for ground wise stats like runs, wickets etc
+        "Ground Average": "ground" # this is for ground/stadium wise stats, used for ground/stadium wise stats like runs, wickets etc
         "Cumulative Average": "cumulative" # this is for cumulative stats, used for cumulative stats like runs, wickets , from starting of his carrer, how did his average, strike rate etc changed
         "Reverse Cumulative Average": "reverse_cumulative" # this is for reverse cumulative stats, used for reverse cumulative stats like runs, wickets etc, from the end of his carrer, how did his average, strike rate etc changed
     }}

@@ -1,0 +1,101 @@
+Apply styles to .markdown
+.markdown {
+    color: #e0e0e0;
+    /* Light grey for default text color */
+    background-color: #2b2b2b;
+    /* Dark background for markdown content */
+    border-radius: 8px;
+    padding: 0;
+    /* Remove padding */
+}
+
+.markdown p {
+    margin: 0;
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+    margin: 10px 0;
+    color: #f0f0f0;
+    /* Light color for headings */
+}
+
+.markdown ul,
+.markdown ol {
+    padding-left: 20px;
+    margin: 0;
+}
+
+.markdown li {
+    margin: 5px 0;
+}
+
+.markdown strong {
+    font-weight: bold;
+}
+
+.markdown em {
+    font-style: italic;
+}
+
+.markdown blockquote {
+    border-left: 4px solid #555;
+    padding-left: 10px;
+    color: #ddd;
+    /* Light color for block quote text */
+    margin: 10px 0;
+}
+
+.markdown code {
+    background-color: #444;
+    color: #f8f8f8;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.markdown pre {
+    background-color: #444;
+    color: #f8f8f8;
+    padding: 10px;
+    border-radius: 5px;
+    overflow: auto;
+}
+
+.markdown a {
+    color: #61dafb;
+    text-decoration: none;
+}
+
+.markdown img {
+    max-width: 100%;
+    height: auto;
+}
+
+.markdown table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+.markdown th,
+.markdown td {
+    border: 1px solid #555;
+    padding: 8px;
+    text-align: left;
+    color: #e0e0e0;
+    /* Light grey for table text */
+}
+
+.markdown th {
+    background-color: #333;
+    /* Dark background for table headers */
+}
+
+.markdown td[colspan] {
+    text-align: center;
+    background-color: #3a3a3a;
+}

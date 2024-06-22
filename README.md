@@ -12,7 +12,9 @@ CricGPT makes it easy to get advanced cricket statistics using natural language 
 - **Extra Info:** Provides a Cricinfo link to your search query for more details or to catch any mistakes made by the model.
 
 ## Demo
-![Demo video](./assets/demo.mp4)
+
+https://github.com/sagarchapara/CricGPT/assets/35074365/0c204834-bc80-471c-aeac-e1c77604bab2
+
 
 ## Getting Started
 

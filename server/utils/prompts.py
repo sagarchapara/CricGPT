@@ -5,7 +5,7 @@ def get_summary_promt():
 
     The "unfiltered" field conatins the overall career summary of the player and the "filtered" field contains the filtered results of the player stats.
 
-    "filtered" results might not always be the correct answer for the query as it might also union some other conditions that are not provided in the query, so always make sure to check the invidual rows and take the decision based on that.
+    "filtered" results might contain overall results and might not always be the correct answer for the query, so always make sure to check the invidual rows and take the decision based on that.
 
     You output only what is needed in a clear way, so that the user can understand the results easily and aggregate the results if needed.
 

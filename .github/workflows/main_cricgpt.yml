@@ -27,7 +27,7 @@ jobs:
       - name: pnpm install, build, and test
         run: |
           cd client
-          pnpm install
+          pnpm install --no-frozen-lockfile
           pnpm run build --if-present
           pnpm run test --if-present
 

@@ -6,6 +6,8 @@ from cricgpt import CricGPT
 from api_clients.cricinfo_client import CricInfoClient
 from api_clients.llm import OpenAIClient
 from id_mapper import IdMapper
+import sys
+import argparse
 
 # Fast api code
 app = FastAPI()
@@ -44,4 +46,10 @@ async def process_data(data: Query):
 
 # Run the FastAPI server
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=5000)
+
+    #get the port from args
+    parser = argparse.ArgumentParser(description="Run the FastAPI server.")
+    parser.add_argument("--port", type=int, default=5000, help="Port to run the server on")
+    args = parser.parse_args()
+
+    uvicorn.run("app:app", host="0.0.0.0", port=args.port)

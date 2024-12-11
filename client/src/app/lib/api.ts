@@ -1,9 +1,19 @@
-const API_URL = 'http://127.0.0.1:8000/stats';
-
 type Message = {
     role: 'user' | 'system';
     content: string;
 };
+
+// api.ts
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/stats';
+
+// Type safety for environment
+declare global {
+    namespace NodeJS {
+        interface ProcessEnv {
+            NEXT_PUBLIC_API_URL?: string;
+        }
+    }
+}
 
 export async function fetchStats(query: string, history: Message[] | null): Promise<string> {
     try {
@@ -18,13 +28,19 @@ export async function fetchStats(query: string, history: Message[] | null): Prom
                 "history": history,
             }),
         });
-        
+
+        if (!response.ok) {
+            console.error("Failed to fetch stats", response.body);
+            throw new Error('Failed to fetch stats');
+        }
+
         // Parse JSON
         const data = await response.json();
-        
+
         // Return data
         return data["summary"];
     } catch (error) {
-      throw new Error('Failed to fetch joke');
+        console.error('Failed to fetch stats', error);
+        throw error;
     }
-  };
+};

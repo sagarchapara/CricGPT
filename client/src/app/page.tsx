@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, FormEvent, ChangeEvent } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRobot, faUser, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
-import styles from './styles/ChatBot.module.css';
+import styles from './styles/chatBot.module.css';
 import { fetchStats } from './lib/api';
 import MarkdownRenderer from './components/MarkdownRenderer';
 
@@ -33,7 +33,7 @@ export default function Home() {
     if (input.trim()) {
       setMessages([...messages, { content: input, role: 'user' }]);
       setInput('');
-      
+
       setIsTyping(true);  // Server starts typing
 
       try {
@@ -110,5 +110,5 @@ export default function Home() {
 }
 
 function getHistory(messages: Message[]): Message[] {
-  return messages.filter((message) => message.errorText !== true )
+  return messages.filter((message) => message.errorText !== true)
 }

@@ -4,8 +4,7 @@ from data_models.cricinfo import CricInfoPlayer, get_class_description, populate
 from id_mapper import IdMapper
 from utils.utils import load_json, filter_results
 from utils.prompts import get_summary_promt
-import asyncio
-import json
+import asyncio, json, os
 
 
 class Player:
@@ -118,7 +117,9 @@ def get_view_fields_prompt(type: str, view: str) -> str:
     #depending on the type and view, provide the prompt
     type_view = f"orderbyselect_{type}_{view}"
 
-    with open(f"static\\mappings\\{type_view}.json", "r") as f:
+    file_path = os.path.join('static', 'mappings', type_view + ".json")
+
+    with open(file_path, "r") as f:
         orderby_fields = json.load(f)
 
         if "player_name" in orderby_fields:

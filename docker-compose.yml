@@ -8,6 +8,8 @@ services:
     ports:
       - "3000:3000"
     restart: always
+    env_file:
+      - .env
 
   fastapi:
     build:
@@ -16,6 +18,8 @@ services:
     ports:
       - "8000:8000"
     restart: always
+    env_file:
+      - .env
 
   nginx:
     image: nginx:latest

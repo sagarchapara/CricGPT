@@ -1,7 +1,7 @@
-from sqlalchemy import create_engine, Column, Integer, String, Date, ForeignKey, Float, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, Date, ForeignKey, Float, Boolean, inspect
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-import os, sqlalchemy, ssl, psycopg2
+from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 
 Base = declarative_base()
 
@@ -9,6 +9,7 @@ Base = declarative_base()
 class Player(Base):
     __tablename__ = 'players'
     player_id = Column(Integer, primary_key=True)
+    external_id = Column(Integer, unique=True)
     name = Column(String(100), nullable=False)
     gender = Column(String(10), nullable=False)
     role = Column(String(50))
@@ -22,7 +23,7 @@ class Team(Base):
     __tablename__ = 'teams'
     team_id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False, unique=True)
-    country = Column(String(50), nullable=False)
+    country = Column(String(50), nullable=False) #need to fill this later
     gender = Column(String(10))
 
 # Stadiums Table
@@ -31,38 +32,55 @@ class Stadium(Base):
     stadium_id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
     city = Column(String(50))
-    country = Column(String(50), nullable=False)
-    capacity = Column(Integer)
+    country = Column(String(50), nullable=False) #need to fill this later
+    capacity = Column(Integer) #need to fill this later
 
 # Tournaments Table
 class Tournament(Base):
     __tablename__ = 'tournaments'
     tournament_id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False, unique=True)
-    start_date = Column(Date)
-    end_date = Column(Date)
+    gender = Column(String(10))
     format = Column(String(20))
-    host_country = Column(String(50))
-    winner_team_id = Column(Integer, ForeignKey('teams.team_id'))
-    runner_up_team_id = Column(Integer, ForeignKey('teams.team_id'))
-    shared_winner = Column(Boolean, default=False)
-    # add man of the series, highest wicket taker, highest runs
+    season = Column(String(50))
+    host_country = Column(String(50)) #need to fill this later
+    outcome = Column(JSONB) #need to fill this later
 
 # Matches Table
 class Match(Base):
     __tablename__ = 'matches'
     match_id = Column(Integer, primary_key=True)
-    tournament_id = Column(Integer, ForeignKey('tournaments.tournament_id'))
+
+    balls_per_over = Column(Integer)
+
     stadium_id = Column(Integer, ForeignKey('stadiums.stadium_id'))
-    match_date = Column(Date, nullable=False)
-    match_format = Column(String(20))
+    tournament_id = Column(Integer, ForeignKey('tournaments.tournament_id'))
+    tournament_match_details = Column(JSONB)
+
+    gender = Column(String(10))
+
+    match_dates = Column(ARRAY(Date), nullable=False)
+    match_type = Column(String(20))
+    match_type_number = Column(Integer)
+    season = Column(String(50))
+
     team1_id = Column(Integer, ForeignKey('teams.team_id'))
     team2_id = Column(Integer, ForeignKey('teams.team_id'))
-    toss_winner_id = Column(Integer, ForeignKey('teams.team_id'))
-    toss_decision = Column(String(10))
-    winner_team_id = Column(Integer, ForeignKey('teams.team_id'))
-    result = Column(String(50))
-    man_of_the_match = Column(Integer, ForeignKey('players.player_id'))
+    outcome = Column(JSONB)
+    toss = Column(JSONB)
+
+    overs = Column(Integer)
+    man_of_the_match = Column(ARRAY(Integer))
+    team_type = Column(String(20)) #International, Domestic, Club, Other
+
+    players = Column(ARRAY(Integer))
+
+    bowl_out = Column(JSONB)
+    missing = Column(JSONB)
+    officials = Column(JSONB)
+    super_subs = Column(JSONB)
+
+
 
 # Innings Table
 class Innings(Base):
@@ -74,29 +92,35 @@ class Innings(Base):
     runs_scored = Column(Integer)
     wickets_lost = Column(Integer)
     overs_played = Column(Float)
-    extras = Column(Integer)
-    total_score = Column(Integer)
-    fall_of_wickets = Column(String(100))
-    top_scorer_id = Column(Integer, ForeignKey('players.player_id'))
-    top_bowler_id = Column(Integer, ForeignKey('players.player_id'))
-
+    extras = Column(JSONB)
+    target = Column(JSONB)
+    fall_of_wickets = Column(JSONB)
+    absent_hurt = Column(JSONB)
+    penalty_runs = Column(JSONB)
+    declared = Column(Boolean)
+    forfeited = Column(Boolean)
+    powerplay = Column(JSONB)
+    miscounted_overs = Column(JSONB)
+    target = Column(JSONB)
+    super_over = Column(Boolean)
+ 
 # Balls Table
 class Ball(Base):
     __tablename__ = 'balls'
     ball_id = Column(Integer, primary_key=True)
     innings_id = Column(Integer, ForeignKey('innings.innings_id'))
+    match_id = Column(Integer, ForeignKey('matches.match_id'))
     ball_number = Column(Integer)
     batsman_id = Column(Integer, ForeignKey('players.player_id'))
     bowler_id = Column(Integer, ForeignKey('players.player_id'))
     non_striker_id = Column(Integer, ForeignKey('players.player_id'))
-    runs_scored = Column(Integer)
-    runs_type = Column(String(20))
-    extras = Column(Integer)
-    wicket = Column(String(20))
-    wicket_type = Column(String(20))
-    wicket_player_id = Column(Integer, ForeignKey('players.player_id'))
-    wicket_fielder_id = Column(Integer, ForeignKey('players.player_id'))
-    wicket_keeper_id = Column(Integer, ForeignKey('players.player_id'))
+    runs = Column(JSONB)
+    extras = Column(JSONB)
+    wicket = Column(JSONB)
+    replacement = Column(JSONB)
+    review = Column(JSONB)
+    is_powerplay = Column(Boolean)
+    powerplay_type = Column(String(20))
 
 # PlayerStatsInnings Table
 class PlayerStatsInnings(Base):
@@ -110,13 +134,16 @@ class PlayerStatsInnings(Base):
     fours = Column(Integer)
     sixes = Column(Integer)
     strike_rate = Column(Float)
-    overs_bowled = Column(Float)
+    balls_bowled = Column(Integer)
     runs_conceded = Column(Integer)
     wickets_taken = Column(Integer)
     economy = Column(Float)
     catches = Column(Integer)
     run_outs = Column(Integer)
     stumpings = Column(Integer)
+    not_out = Column(Boolean, default=True)
+    did_not_bat = Column(Boolean, default=True)
+    did_not_bowl = Column(Boolean, default=True)
 
 # PlayerVsPlayerInnings Table
 class PlayerVsPlayerInnings(Base):
@@ -131,13 +158,13 @@ class PlayerVsPlayerInnings(Base):
     fours = Column(Integer)
     sixes = Column(Integer)
     strike_rate = Column(Float)
+    outs = Column(Integer)
     overs_bowled = Column(Float)
     runs_conceded = Column(Integer)
+    fours_conceded = Column(Integer)
+    sixes_conceded = Column(Integer)
     wickets_taken = Column(Integer)
     economy = Column(Float)
-    catches = Column(Integer)
-    run_outs = Column(Integer)
-    stumpings = Column(Integer)
 
 class PlayerStatsOver(Base):
     __tablename__ = 'player_stats_over'
@@ -151,12 +178,13 @@ class PlayerStatsOver(Base):
     fours = Column(Integer)
     sixes = Column(Integer)
     strike_rate = Column(Float)
+    balls_bowled = Column(Integer)
     runs_conceded = Column(Integer)
     wickets_taken = Column(Integer)
     economy = Column(Float)
-    catches = Column(Integer)
-    run_outs = Column(Integer)
-    stumpings = Column(Integer)
+    fours_conceded = Column(Integer)
+    sixes_conceded = Column(Integer)
+    not_out = Column(Boolean, default=True)
 
 # Patnership Table
 class Partnership(Base):
@@ -171,43 +199,19 @@ class Partnership(Base):
     fours = Column(Integer)
     sixes = Column(Integer)
     out = Column(String(20))
+    strike_rate = Column(Float)
 
-
-SQL_SERVER = "34.47.131.52"
-SQL_DATABASE = "cricdata"
-SQL_USER = "postgres"
-SQL_PASSWORD = "sagar12@" 
-SQL_PORT = "5432"
-
-host = os.getenv("SQL_HOST") if os.getenv("SQL_HOST") else SQL_SERVER
-dbname = os.getenv("SQL_DB") if os.getenv("SQL_DB") else SQL_DATABASE
-user = os.getenv("SQL_USER") if os.getenv("SQL_USER") else SQL_USER
-password = os.getenv("SQL_PASSWORD") if os.getenv("SQL_PASSWORD") else SQL_PASSWORD
-port = os.getenv("SQL_PORT") if os.getenv("SQL_PORT") else SQL_PORT
-
-try:
-    engine = sqlalchemy.create_engine(
-        # Equivalent URL:
-        # postgresql+pg8000://<db_user>:<db_pass>@<db_host>:<db_port>/<db_name>
-        sqlalchemy.engine.url.URL.create(
-            drivername="postgresql+pg8000",
-            username=user,
-            password=password,
-            host=host,
-            port=port,
-            database=dbname,
-        ),
-    )
-
-    # Test the connection
-    with engine.connect() as conn:
-        result = conn.execute(sqlalchemy.text("SELECT version()")).fetchone()
-        version = result[0]
-        print(f"PostgreSQL version: {version}")        
-except psycopg2.Error as e:
-    print(f"Database connection error: {e}")
-    raise
-
+class Fielding(Base):
+    __tablename__ = 'fielding'
+    fielding_id = Column(Integer, primary_key=True)
+    out_player_id = Column(Integer, ForeignKey('players.player_id'))
+    fielder_id = Column(Integer, ForeignKey('players.player_id'))
+    bowler_id = Column(Integer, ForeignKey('players.player_id'))
+    match_id = Column(Integer, ForeignKey('matches.match_id'))
+    innings_id = Column(Integer, ForeignKey('innings.innings_id'))
+    over_number = Column(Integer)
+    ball_number = Column(Integer)
+    out_type = Column(String(20))
 
 
 

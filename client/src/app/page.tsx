@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <div className={styles.main}>
-        <Header />
+        {/* <Header /> */}
         <ChatContainer />
       </div>
     </div>

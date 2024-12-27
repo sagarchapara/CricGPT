@@ -7,4 +7,25 @@
     display: flex;
     flex-direction: column;
   }
+
+  /* Firefox */
+.scrollable-container {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #222;
+  }
+  
+  /* WebKit-based browsers */
+  .scrollable-container::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollable-container::-webkit-scrollbar-track {
+    background: #222;
+  }
+  
+  .scrollable-container::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+  }
+  
   

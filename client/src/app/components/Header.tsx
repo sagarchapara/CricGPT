@@ -1,13 +1,10 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
-import styles from '../styles/header.module.css';
 
 export default function Header() {
     return (
-        <header className={styles.header}>
-            <h2 className={styles.title}>
-                CricStatsAI
-            </h2>
+        <header className="header">
+            <div style={{ width: '40px', height: '40px', marginRight: '10px' }}>
+            </div>
+            <h1 className="title">CricGPT</h1>
         </header>
     );
 }

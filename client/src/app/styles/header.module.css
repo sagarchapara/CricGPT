@@ -1,19 +1,21 @@
-
-  .title {
-    font-size: 1.2rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .icon {
-    font-size: 1.5rem;
-  }
-
-  .header {
-    background-color: #0000;
-    color: #FFFFFF;
-    display: flex;
-    align-items: center;
+.header {
+    display: flex; /* Use flexbox to align in a row */
+    flex-direction: row; /* Explicitly set row direction (default for flex) */
+    align-items: center; /* Center vertically */
     padding: 10px 20px;
+    background-color: #121212;
+    color: #FFFFFF;
+    border-bottom: 1px solid #3A3A3A;
+  }
+  
+  .title {
+    font-size: 1.5rem; /* Adjust font size */
+    font-weight: bold;
+  }
+  
+  .icon {
+    width: 40px; /* Adjust SVG size */
+    height: 40px;
+    margin-right: 10px; /* Add spacing between the icon and text */
   }
   

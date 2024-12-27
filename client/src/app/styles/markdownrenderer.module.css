@@ -1,101 +1,194 @@
-Apply styles to .markdown
 .markdown {
     color: #e0e0e0;
     /* Light grey for default text color */
     background-color: #2b2b2b;
     /* Dark background for markdown content */
     border-radius: 8px;
-    padding: 0;
-    /* Remove padding */
+    /* Smooth rounded corners */
+    padding: 10px;
+    /* Add padding for better spacing */
+    line-height: 1.6;
+    /* Improve text readability */
+    font-family: 'Arial', sans-serif;
+    /* Modern font */
 }
 
+/* Paragraphs */
 .markdown p {
-    margin: 0;
+    margin: 10px 0;
+    /* Add spacing between paragraphs */
 }
 
+/* Headings */
 .markdown h1,
 .markdown h2,
 .markdown h3,
 .markdown h4,
 .markdown h5,
 .markdown h6 {
-    margin: 10px 0;
+    margin: 15px 0 10px;
+    /* Add spacing above and below */
     color: #f0f0f0;
     /* Light color for headings */
+    font-weight: bold;
+    /* Emphasize headings */
+    line-height: 1.4;
+    /* Compact heading spacing */
+    border-bottom: 1px solid #444;
+    /* Optional: Divider for headings */
+    padding-bottom: 4px;
+    /* Space below heading text */
 }
 
+/* Lists */
 .markdown ul,
 .markdown ol {
     padding-left: 20px;
-    margin: 0;
+    /* Indent lists */
+    margin: 10px 0;
+    /* Add spacing above and below */
 }
 
 .markdown li {
     margin: 5px 0;
+    /* Add spacing between list items */
 }
 
+/* Bold and Italics */
 .markdown strong {
     font-weight: bold;
+    /* Bold text */
+    color: #ffffff;
+    /* Bright white for emphasis */
 }
 
 .markdown em {
     font-style: italic;
+    /* Italic text */
+    color: #f0e68c;
+    /* Khaki color for subtle emphasis */
 }
 
+/* Blockquotes */
 .markdown blockquote {
     border-left: 4px solid #555;
-    padding-left: 10px;
+    /* Subtle left border */
+    padding-left: 15px;
+    /* Add spacing inside blockquote */
     color: #ddd;
-    /* Light color for block quote text */
+    /* Light grey for blockquote text */
     margin: 10px 0;
+    /* Add spacing above and below */
+    font-style: italic;
+    /* Distinctive style for quotes */
+    background-color: #2d2d2d;
+    /* Slightly darker background */
+    border-radius: 5px;
+    /* Rounded corners */
 }
 
+/* Inline Code */
 .markdown code {
     background-color: #444;
+    /* Dark grey for inline code */
     color: #f8f8f8;
-    padding: 2px 4px;
+    /* Light text */
+    padding: 2px 5px;
+    /* Add padding */
     border-radius: 3px;
+    /* Rounded corners */
+    font-family: 'Courier New', monospace;
+    /* Monospaced font */
 }
 
+/* Code Blocks */
 .markdown pre {
     background-color: #444;
+    /* Dark grey background */
     color: #f8f8f8;
-    padding: 10px;
-    border-radius: 5px;
+    /* Light text */
+    padding: 12px;
+    /* Increased padding for better readability */
+    border-radius: 6px;
+    /* Smooth rounded corners */
     overflow: auto;
+    /* Scroll for long content */
+    font-family: 'Courier New', monospace;
+    /* Monospaced font */
+    margin: 10px 0;
+    /* Add spacing */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+    /* Subtle shadow */
 }
 
+/* Links */
 .markdown a {
     color: #61dafb;
-    text-decoration: none;
+    /* Bright blue links */
+    text-decoration: underline;
+    /* Underline for visibility */
+    transition: color 0.2s ease;
+    /* Smooth hover transition */
 }
 
+.markdown a:hover {
+    color: #82eaff;
+    /* Lighter blue on hover */
+}
+
+/* Images */
 .markdown img {
     max-width: 100%;
+    /* Responsive images */
     height: auto;
+    /* Maintain aspect ratio */
+    margin: 10px 0;
+    /* Add spacing */
+    border-radius: 6px;
+    /* Rounded corners for images */
 }
 
+/* Tables */
 .markdown table {
     width: 100%;
+    /* Full-width tables */
     border-collapse: collapse;
-    margin: 10px 0;
+    /* No double borders */
+    margin: 15px 0;
+    /* Add spacing above and below */
 }
 
 .markdown th,
 .markdown td {
     border: 1px solid #555;
+    /* Subtle border */
     padding: 8px;
+    /* Add spacing inside cells */
     text-align: left;
+    /* Align text to the left */
     color: #e0e0e0;
     /* Light grey for table text */
 }
 
 .markdown th {
     background-color: #333;
-    /* Dark background for table headers */
+    /* Dark background for headers */
+    font-weight: bold;
+    /* Emphasize headers */
 }
 
 .markdown td[colspan] {
     text-align: center;
+    /* Center-align for colspan */
     background-color: #3a3a3a;
+    /* Slightly lighter background */
+}
+
+/* Custom Spacing for Specific Elements */
+.markdown hr {
+    border: none;
+    border-top: 1px solid #444;
+    /* Subtle divider line */
+    margin: 15px 0;
+    /* Add spacing */
 }

@@ -1,8 +1,9 @@
 import json
 from api_clients.cricinfo_client import CricInfoClient
+from db.cache import PersistentCache
 
 class IdMapper:
-    def __init__(self, cricInfoClient: CricInfoClient):
+    def __init__(self, cricInfoClient: CricInfoClient, cache:PersistentCache):
         self.cricInfoClient = cricInfoClient
 
         #TODO: use elasticsearch to store the data
@@ -24,6 +25,20 @@ class IdMapper:
         return self.teams.get(team)
     
     async def get_player_id(self, player: str):
+        player_cache_id = f"statsguru_player_{player}"
+
+        player_cache_str = await self.cache.get(player_cache_id)
+
+        if player_cache_str is not None:
+            player_cache = json.loads(player_cache_str)
+            return player_cache["player_id"]
+
         player_id = await self.cricInfoClient.get_statsguru_player_id(player)
+
+        player_cache_str = json.dumps({
+            "player_id": player_id
+        })
+
+        await self.cache.set(player_cache_id, player_cache_str)
 
         return player_id

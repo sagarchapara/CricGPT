@@ -8,6 +8,8 @@ from api_clients.llm import OpenAIClient
 from id_mapper import IdMapper
 import sys
 import argparse
+import logging
+from db.cache import PersistentCache
 
 # Fast api code
 app = FastAPI()
@@ -22,9 +24,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-cricinfo_client = CricInfoClient()
-id_mapper = IdMapper(cricinfo_client)
+cache = PersistentCache()
+cricinfo_client = CricInfoClient(cache=cache)
+id_mapper = IdMapper(cricinfo_client, cache=cache)
 openai_client = OpenAIClient(model="gpt4o")
 
 class Query(BaseModel):
@@ -39,13 +41,19 @@ class Response(BaseModel):
 
 @app.post("/stats")
 async def process_data(data: Query):
-    cricgpt = CricGPT(model="gpt4o", openai_client=openai_client, cricinfo_client=cricinfo_client, id_mapper=id_mapper)
-    response = await cricgpt.execute(data.query)
+    cricgpt = CricGPT(openai_client=openai_client, cricinfo_client=cricinfo_client, id_mapper=id_mapper)
+    response = await cricgpt.execute(data.query, data.history)
     return response
     
 
 # Run the FastAPI server
 if __name__ == "__main__":
+
+    #add file logger
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    file_handler = logging.FileHandler('fastapi.log')
+    logger.addHandler(file_handler)
 
     #get the port from args
     parser = argparse.ArgumentParser(description="Run the FastAPI server.")

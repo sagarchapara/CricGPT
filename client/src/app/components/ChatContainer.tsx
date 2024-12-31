@@ -2,62 +2,36 @@
 
 import { useState, useEffect, useRef, FormEvent, ChangeEvent } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane, faSyncAlt, faClipboard, faThumbsUp, faThumbsDown, faShareAlt, faSearch, faChartBar, faUserTie } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane, faSyncAlt, faRepeat, faSearch, faChartBar, faUserTie } from '@fortawesome/free-solid-svg-icons';
+import { faThumbsUp as faThumbsUpRegular, faThumbsDown as faThumbsDownRegular, faCopy, faShareFromSquare } from '@fortawesome/free-regular-svg-icons';
+import { faThumbsUp as faThumbsUpSolid, faThumbsDown as faThumbsDownSolid } from '@fortawesome/free-solid-svg-icons';
 import styles from '../styles/chatBot.module.css'
-import { fetchStats } from '../lib/api'
+import { fetchStats, sharelink, likeUnlikeStats } from '../lib/api'
 import MarkdownRenderer from './MarkdownRenderer';
 import MascotSVG from '../../../public/mascot_cropped.svg'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Message } from '../types/Message';
+import { v4 as uuidv4 } from 'uuid';
 
-type Message = {
-    content: string;
-    role: "system" | "user";
-    errorText?: boolean;
+type ShareLinkInfo = {
+    link: string;
+    createdAt: number;
 };
 
-const initMessages: Message[] = [
-    {
-        content: 'Hello! I am a bot. How can I help you today?', role: 'system'
-    },
-    {
-        content: 'What can I assist you with?', role: 'system'
-    },
-    {
-        content: 'Please provide more details.', role: 'system'
-    },
-    {
-        content: 'I am here to help you with any questions.', role: 'system'
-    },
-    {
-        content: 'Hi, I need help with my account.', role: 'user'
-    },
-    {
-        content: 'Can you tell me more about your services?', role: 'user'
-    },
-    {
-        content: 'I am having trouble logging in.', role: 'user'
-    },
-    {
-        content: 'Thank you for your assistance.', role: 'user'
-    },
-    {
-        content: 'Can you tell me more about your services?', role: 'user'
-    },
-    {
-        content: 'I am having trouble logging in.', role: 'user'
-    },
-    {
-        content: 'Thank you for your assistance.', role: 'user'
-    },
-    {
-        content: 'I am having trouble logging in.', role: 'user'
-    },
-    {
-        content: 'Thank you for your assistance.', role: 'system'
-    }
-];
-
 const ChatContainer: React.FC = () => {
-    const [messages, setMessages] = useState<Message[]>(initMessages);
+    const storedMessages = sessionStorage.getItem('chatMessages');
+    const storedSessionId = sessionStorage.getItem('sessionId');
+
+    //generate a new sessionid - uuid if not present
+    const sessionId = storedSessionId || uuidv4();
+    if (!storedSessionId) {
+        sessionStorage.setItem('sessionId', sessionId);
+    }
+
+    const shareLinkInfo = sessionStorage.getItem('shareLink') ? JSON.parse(sessionStorage.getItem('shareLink') as string) as ShareLinkInfo : null;
+
+    const [messages, setMessages] = useState<Message[]>(storedMessages ? JSON.parse(storedMessages) : []);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);   // Track server typing status
     const chatWindowRef = useRef<HTMLDivElement>(null);
@@ -71,10 +45,15 @@ const ChatContainer: React.FC = () => {
         }
     }, [messages, isTyping]);
 
+    useEffect(() => {
+        sessionStorage.setItem('chatMessages', JSON.stringify(messages));
+    }, [messages]);
+
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (input.trim()) {
-            setMessages([...messages, { content: input, role: 'user' }]);
+            setMessages([...messages, { content: input, role: 'user', timestamp: Date.now() }]);
             setInput('');
 
             setIsTyping(true);  // Server starts typing
@@ -83,18 +62,78 @@ const ChatContainer: React.FC = () => {
                 const markdownContent = await fetchStats(input, getHistory(messages));
                 setMessages(prevMessages => [
                     ...prevMessages,
-                    { content: markdownContent, role: "system" },
+                    { content: markdownContent, role: "assistant", timestamp: Date.now() },
                 ]);
             } catch (error) {
                 setMessages(prevMessages => [
                     ...prevMessages,
-                    { content: 'Failed to fetch content', role: 'system', errorText: true },
+                    { content: 'Something went wrong try again', role: 'assistant', errorText: true, timestamp: Date.now() },
                 ]);
             } finally {
                 setIsTyping(false);  // Server stops typing
             }
         }
     };
+
+    const handleLikeOrDislike = async (messageIndex: number, isLike: boolean): Promise<void> => {
+        // Logic to like or dislike a message
+        if (messages.length === 0) {
+            return;
+        }
+
+        if (messages[messageIndex] && (messages[messageIndex].isliked === true) && isLike === true) {
+            console.info("Already liked");
+            return;
+        }
+
+        if (messages[messageIndex] && (messages[messageIndex].isdisliked === true) && isLike === false) {
+            console.info("Already disliked");
+            return;
+        }
+
+        const updatedMessages = messages.map((msg, idx) =>
+            idx === messageIndex ? { ...msg, isliked: isLike, isdisliked: !isLike } : msg
+        );
+
+        setMessages(updatedMessages);
+
+        try {
+            await likeUnlikeStats(sessionId, updatedMessages);
+        } catch (error) {
+            console.error('Failed to like or dislike', error);
+            toast.error('Failed to like or dislike', {
+                autoClose: 1000,
+            });
+        }
+    };
+
+    const handleShare = async (): Promise<void> => {
+
+        try {
+            if (shareLinkInfo && messages[messages.length - 1].timestamp < shareLinkInfo.createdAt) {
+                await navigator.clipboard.writeText(shareLinkInfo.link);
+                toast.success('link copied to clipboard', {
+                    autoClose: 1000,
+                });
+                return;
+            }
+
+            const link = await sharelink(sessionId, messages);
+
+            sessionStorage.setItem('shareLink', JSON.stringify({ link, createdAt: Date.now() }));
+
+            await navigator.clipboard.writeText(link);
+
+            toast.success('link copied to clipboard', {
+                autoClose: 1000,
+            });
+        } catch (error) {
+            console.error('Failed to share', error);
+            toast.error('Failed to create link', {
+                autoClose: 1000,
+            });
+        }
+    }
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setInput(e.target.value);
@@ -108,9 +147,39 @@ const ChatContainer: React.FC = () => {
     const copyToClipboard = async (content: string): Promise<void> => {
         try {
             await navigator.clipboard.writeText(content);
-            alert('Content copied to clipboard!');
+
+            toast.success('Content copied to clipboard', {
+                autoClose: 1000,
+            });
         } catch (err) {
-            alert('Failed to copy content: ' + (err as Error).message);
+            console.error('Failed to copy to clipboard', err);
+            toast.error('Failed to copy to clipboard', {
+                autoClose: 1000,
+            });
+        }
+    };
+
+    const handleRetry = async (): Promise<void> => {
+        // logic to regenerate the last message
+        setMessages(messages.slice(0, -1)); // Remove the last message
+        const lastMessage = messages[messages.length - 2]; // Get the second last message
+        setIsTyping(true);  // Server starts typing
+
+        if (lastMessage) {
+            try {
+                const markdownContent = await fetchStats(lastMessage.content, getHistory(messages.slice(0, -1)));
+                setMessages(prevMessages => [
+                    ...prevMessages,
+                    { content: markdownContent, role: "assistant", timestamp: Date.now() },
+                ]);
+            } catch (error) {
+                setMessages(prevMessages => [
+                    ...prevMessages,
+                    { content: 'Something went wrong try again', role: 'assistant', errorText: true, timestamp: Date.now() },
+                ]);
+            } finally {
+                setIsTyping(false);  // Server stops typing
+            }
         }
     };
 
@@ -118,6 +187,7 @@ const ChatContainer: React.FC = () => {
 
     return (
         <div className={styles.chatContainer}>
+            <ToastContainer />
             {messages.length === 0 ? (
                 <div className={styles.emptyState}>
                     <MascotSVG />
@@ -126,48 +196,49 @@ const ChatContainer: React.FC = () => {
             ) : (
                 <>
                     <div className={styles.chatWindow} ref={chatWindowRef}>
-                        {messages.map((message, index) => (
+                        {messages.sort(a => a.timestamp).map((message, index) => (
                             <div
                                 key={index}
                                 className={
-                                    message.role === 'system' ? styles.serverMessage : styles.userMessage
+                                    message.role === "assistant" ? styles.serverMessage : styles.userMessage
                                 }
                             >
                                 <div>
-                                    {message.role === 'system' ? (
+                                    {message.role === 'assistant' ? (
                                         <img src="/mascot_cropped.ico" alt="System Icon" className={styles.icon} />
                                     ) : (<></>)}
                                 </div>
 
                                 <div className={styles.messageContent}>
-                                    {message.role === 'system' ? (
+                                    {message.role === 'assistant' ? (
                                         <div className={styles.markdownWrapper}>
                                             <MarkdownRenderer content={message.content} />
                                             <div className={styles.actionIcons}>
-                                                <div className={styles.tooltipContainer}>
-                                                    <button className={styles.iconButton} onClick={() => alert('Liked!')} aria-label="Like">
-                                                        <FontAwesomeIcon icon={faThumbsUp} />
-                                                    </button>
-                                                    <span className={styles.tooltipText}>Like</span>
-                                                </div>
-                                                <div className={styles.tooltipContainer}>
-                                                    <button className={styles.iconButton} onClick={() => alert('Disliked!')} aria-label="Dislike">
-                                                        <FontAwesomeIcon icon={faThumbsDown} />
-                                                    </button>
-                                                    <span className={styles.tooltipText}>Dislike</span>
-                                                </div>
-                                                <div className={styles.tooltipContainer}>
-                                                    <button className={styles.iconButton} onClick={() => alert('Shared!')} aria-label="Share">
-                                                        <FontAwesomeIcon icon={faShareAlt} />
-                                                    </button>
-                                                    <span className={styles.tooltipText}>Share</span>
-                                                </div>
-                                                <div className={styles.tooltipContainer}>
-                                                    <button className={styles.iconButton} onClick={() => copyToClipboard(message.content)} aria-label="Copy">
-                                                        <FontAwesomeIcon icon={faClipboard} />
-                                                    </button>
-                                                    <span className={styles.tooltipText}>Copy</span>
-                                                </div>
+                                                {[
+                                                    { icon: message.isliked ? faThumbsUpSolid : faThumbsUpRegular, label: "Like", action: () => handleLikeOrDislike(index, true) },
+                                                    { icon: message.isdisliked ? faThumbsDownSolid : faThumbsDownRegular, label: "Dislike", action: () => handleLikeOrDislike(index, false) },
+                                                    { icon: faCopy, label: "Copy", action: () => copyToClipboard(message.content) },
+                                                ].map((btn, idx) => (
+                                                    <div key={idx} className={styles.tooltipContainer}>
+                                                        <button className={styles.iconButton} onClick={btn.action} aria-label={btn.label}>
+                                                            <FontAwesomeIcon icon={btn.icon} />
+                                                        </button>
+                                                        <span className={styles.tooltipText}>{btn.label}</span>
+                                                    </div>
+                                                ))}
+                                                {index === messages.length - 1 && (
+                                                    [
+                                                        { icon: faShareFromSquare, label: "Create link", action: () => handleShare() },
+                                                        { icon: faRepeat, label: "Retry", action: () => handleRetry() },
+                                                    ].map((btn: { icon: any, label: string, action: () => void }, idx: number) => (
+                                                        <div key={idx} className={styles.tooltipContainer}>
+                                                            <button className={styles.iconButton} onClick={btn.action} aria-label={btn.label}>
+                                                                <FontAwesomeIcon icon={btn.icon} />
+                                                            </button>
+                                                            <span className={styles.tooltipText}>{btn.label}</span>
+                                                        </div>
+                                                    ))
+                                                )}
                                             </div>
                                         </div>
                                     ) : (
@@ -225,7 +296,7 @@ const ChatContainer: React.FC = () => {
                 <div className={styles.featuresRow}>
                     {[
                         { icon: faSearch, title: "Search Stats", description: "Find detailed player statistics.", comingSoon: false },
-                        { icon: faClipboard, title: "Custom Queries", description: "Ask custom questions about cricket.", comingSoon: false },
+                        { icon: faCopy, title: "Custom Queries", description: "Ask custom questions about cricket.", comingSoon: false },
                         { icon: faChartBar, title: "Plot Stats", description: "Visualize data with interactive charts.", comingSoon: true },
                         { icon: faUserTie, title: "Player Analysis", description: "In-depth player performance insights.", comingSoon: true },
                     ].map((feature, index) => (

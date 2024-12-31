@@ -3,6 +3,7 @@ import asyncio
 from typing import Optional
 from openai import AsyncAzureOpenAI, AsyncOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from utils.logging import time_logger
 
 class OpenAIClient:
     def __init__(self, model: str):
@@ -28,6 +29,7 @@ class OpenAIClient:
 
         self.model = model
 
+    @time_logger()
     async def get_response(self, system_prompt: str, query: str, history: Optional[list[dict]] = None):
         system_prompt = {"role": "system", "content": system_prompt}
 

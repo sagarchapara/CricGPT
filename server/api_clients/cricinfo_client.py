@@ -4,14 +4,21 @@ from bs4 import BeautifulSoup
 import aiohttp
 import re
 import urllib
+import logging
+from utils.logging import time_logger
+from db.cache import PersistentCache
+import json
+
+logger = logging.getLogger(__name__)
 
 class CricInfoClient:
-    def __init__(self):
+    def __init__(self, cache: PersistentCache):
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
         }
+        self.cache: PersistentCache = cache
     
-    
+    @time_logger()
     async def get_search_data(self, url, class_name: str = None):
 
         # Send a GET request to the URL
@@ -37,8 +44,16 @@ class CricInfoClient:
 
         return results
 
-
+    @time_logger()
     async def get_cricinfo_player(self, player: str):
+
+        player_cache_id = f"cricinfo_player_{player}"
+
+        player_cache_str = await self.cache.get(player_cache_id)
+
+        if player_cache_str is not None:
+            player_cache = json.loads(player_cache_str)
+            return player_cache["player_name"], player_cache["player_id"]
 
         player = player.replace(' ', '+')
 
@@ -63,6 +78,13 @@ class CricInfoClient:
             return None
         
         player_name , player_id = CricInfoClient.extract_player_info(url)
+
+        player_cache_str = json.dumps({
+            "player_name": player_name,
+            "player_id": player_id
+        })
+
+        await self.cache.set(player_cache_id, player_cache_str)
         
         return player_name, player_id
     

@@ -287,6 +287,25 @@
     font-size: 14px; /* Adjust font size for compact design */
     padding: 10px 15px; /* Adjust padding for better spacing */
   }
+
+  .userMessage .icon,
+  .serverMessage .icon {
+    flex-shrink: 0;
+    /* Prevent the icon from shrinking */
+    margin-right: 5px;
+    /* Add some space between the icon and the message */
+    width: 20px;
+    height: 20px;
+  }
+
+  .messageContent {
+    max-width: 100%;
+    padding: 5px; /* Adjust padding for better spacing */
+  }
+
+  .chatWindow {
+    padding: 1% 2% 1% 2%;
+  }
 }
 
 

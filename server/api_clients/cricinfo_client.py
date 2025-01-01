@@ -6,7 +6,7 @@ import re
 import urllib
 import logging
 from utils.logging import time_logger
-from db.cache import PersistentCache
+from cache import PersistentCache
 import json
 
 logger = logging.getLogger(__name__)

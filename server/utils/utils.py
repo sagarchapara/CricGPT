@@ -1,5 +1,10 @@
 import json
 import re
+from datetime import datetime
+
+
+def datetime_to_epoch(dt: datetime) -> int:
+    return int(dt.timestamp() * 1000)
 
 @staticmethod
 def load_json(response: str):

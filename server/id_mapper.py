@@ -1,10 +1,11 @@
 import json
 from api_clients.cricinfo_client import CricInfoClient
-from db.cache import PersistentCache
+from cache import PersistentCache
 
 class IdMapper:
     def __init__(self, cricInfoClient: CricInfoClient, cache:PersistentCache):
         self.cricInfoClient = cricInfoClient
+        self.cache = cache
 
         #TODO: use elasticsearch to store the data
         with open('static/teams.json') as f:

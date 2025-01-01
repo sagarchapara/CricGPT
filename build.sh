@@ -55,4 +55,4 @@ process_image "$DOCKERFILE_SERVER"
 
 echo "Finished processing images."
 
-echo "gcloud compute scp --recurse ./out instance-20241209-093618:/home/sagar/cricgpt --zone "asia-south2-b" --project "annular-hexagon-442323-a8"
+gcloud compute scp --recurse ./out instance-20241209-093618:/home/sagar/cricgpt --zone "asia-south2-b" --project "annular-hexagon-442323-a8"

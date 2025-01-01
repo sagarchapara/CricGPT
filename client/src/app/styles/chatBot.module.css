@@ -55,6 +55,13 @@
   scrollbar-width: thin;
 }
 
+.markdownWrapper {
+  overflow-x: auto; /* Enable horizontal scrolling */
+  background-color: #2b2b2b; /* Consistent background color */
+  border-radius: 8px; /* Match the markdown style */
+  padding: 10px; /* Add padding for better spacing */
+}
+
 .userMessage,
 .serverMessage {
   display: flex;
@@ -176,10 +183,6 @@
 
 
 
-
-
-
-
 .inputForm {
   display: flex;
   justify-content: center;
@@ -191,23 +194,19 @@
   /* Match the background color with the messages */
 }
 
+
 .inputWrapper {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   width: 90%;
-  /* Allow more flexibility for smaller screens */
   max-width: 700px;
-  /* Restrict the width for better usability */
+  min-width: 300px;
   border-radius: 30px;
-  /* Rounded corners for a modern look */
   background-color: #222;
-  /* Input bar background */
   padding: 8px 12px;
-  /* Adjusted padding for better spacing */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  /* Subtle shadow for a lift effect */
   border: 1px solid #444;
-  /* Add a slight border for better contrast */
 }
 
 .inputField {
@@ -217,15 +216,10 @@
   background-color: #222;
   /* Match input field background with the bar */
   color: white;
-  /* Ensure text visibility */
   border: none;
-  /* Remove any border */
   border-radius: 30px;
-  /* Rounded corners for consistency */
   outline: none;
-  /* Remove the default outline */
   font-size: 16px;
-  /* Improve readability */
 }
 
 .inputField::placeholder {
@@ -235,64 +229,30 @@
   /* Match the field size */
 }
 
-.sendButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 45px;
-  /* Slightly larger for better interaction */
-  height: 45px;
-  border: none;
-  /* No border for a cleaner look */
-  border-radius: 50%;
-  /* Fully rounded button */
-  background-color: #444;
-  /* Button background color */
-  color: white;
-  /* Button text/icon color */
-  cursor: pointer;
-  margin-left: 10px;
-  /* Space between input field and button */
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  /* Add smooth transitions */
-}
-
-.sendButton:hover {
-  background-color: #555;
-  /* Lighter hover effect */
-  transform: scale(1.1);
-  /* Slight enlargement on hover */
-}
-
-.sendButton:active {
-  background-color: #666;
-  /* Darker active state */
-  transform: scale(0.95);
-  /* Slight shrink on click */
-}
-
-
+.sendButton,
 .refreshButton {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 45px;
-  /* Slightly larger for better usability */
   height: 45px;
   border: none;
-  /* Remove default border */
   border-radius: 50%;
-  /* Fully rounded for modern design */
   background-color: #444;
-  /* Consistent background color */
-  color: white;
-  /* Icon/text color */
-  cursor: pointer;
-  /* Indicate clickability */
   margin-left: 10px;
-  /* Space between adjacent elements */
+  color: white;
+  cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
-  /* Smooth transition for interaction */
+}
+
+.sendButton:hover{
+  background-color: #555;
+  transform: scale(1.1);
+}
+
+.sendButton:active{
+  background-color: #666;
+  transform: scale(0.95);
 }
 
 .refreshButton:hover {
@@ -308,6 +268,27 @@
   animation: rotate360 0.5s linear;
   background-color: #666;
 }
+
+/* Responsive adjustments for small screens */
+@media (max-width: 768px) {
+  .inputWrapper {
+    width: 95%; /* Make input bar take up the full width */
+    padding: 8px; /* Adjust padding for smaller screens */
+  }
+
+  .sendButton,
+  .refreshButton {
+    width: 40px; /* Slightly smaller buttons */
+    height: 40px;
+    margin-left: 5px; /* Reduce spacing between buttons */
+  }
+
+  .inputField {
+    font-size: 14px; /* Adjust font size for compact design */
+    padding: 10px 15px; /* Adjust padding for better spacing */
+  }
+}
+
 
 
 @keyframes rotate360 {

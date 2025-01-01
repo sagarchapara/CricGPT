@@ -1,7 +1,7 @@
 import { Message } from '../types/Message';
 
 // api.ts
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+const API_URL = "https://api.cricstatsai.com";
 
 // Type safety for environment
 declare global {
@@ -50,7 +50,7 @@ export async function likeUnlikeStats(sessionId: string, messages: Message[]): P
         const likeUrl = new URL('/like', API_URL).toString();
 
         // Fetch stats from the API using post call
-        const response = await fetch(API_URL, {
+        const response = await fetch(likeUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -73,17 +73,17 @@ export async function likeUnlikeStats(sessionId: string, messages: Message[]): P
 
 export async function sharelink(sessionId: string, messages: Message[]): Promise<string> {
     try {
-        const shareUrl = new URL('/share', API_URL).toString();
+        const shareUrl = new URL('/sharelink', API_URL).toString();
 
         // Fetch stats from the API using post call
-        const response = await fetch(API_URL, {
+        const response = await fetch(shareUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 "sessionId": sessionId,
-                "history": messages
+                "messages": messages
             }),
         });
 
@@ -94,10 +94,37 @@ export async function sharelink(sessionId: string, messages: Message[]): Promise
 
         // Parse JSON
         const data = await response.json();
-        return data["link"];
+        return data["sharedLink"];
 
     } catch (error) {
         console.error('Failed to share link', error);
         throw error;
     }
 };
+
+export async function fetchMessages(sessionId: string): Promise<Message[]> {
+    try {
+        const messagesUrl = new URL(`/session/${sessionId}`, API_URL).toString();
+
+        // Fetch stats from the API using post call
+        const response = await fetch(messagesUrl, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            console.error("Failed to fetch messages", response.body);
+            throw new Error('Failed to fetch messages');
+        }
+
+        // Parse JSON
+        const data = await response.json();
+        return data["messages"];
+
+    } catch (error) {
+        console.error('Failed to fetch messages', error);
+        throw error;
+    }
+}

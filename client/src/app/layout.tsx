@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/mascot_cropped.ico",
+        url: "/mascot_cropped.svg",
         width: 1200,
         height: 630,
         alt: "CricStatsAI - Your Cricket Stats and Insights Hub",

@@ -5,5 +5,4 @@ export type Message = {
     errorText?: boolean;
     isliked?: boolean;
     isdisliked?: boolean;
-    sharedUrl?: string;
 };

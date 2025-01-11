@@ -282,6 +282,24 @@ def get_stats_prompt():
 
     Reasoning: We need to find the Indian players in 2021 with min 1000 runs, so we need to provide the team as India and span as the year 2021 and type as batting as we are looking for batting stats, here we are not providing the runs_scored as it is inninig wise stats not the overall stats.
 
+    6. India stats in MCG
+    {{
+        'type': 'team',
+        'team': ['India'],
+        'ground': ["AUS: Melbourne Cricket Ground, Melbourne"]
+    }}
+
+    Reasoning: We need to find the India stats in MCG, so we need to provide the team as India and ground as MCG, Format for grounds is "Country: Ground, City"
+
+    7. India stats in ODI World Cup
+    {{
+        'type': 'team',
+        'team': ['India'],
+        'trophy': ['World Cup']
+    }}
+
+    Reasoning: We need to find the India stats in ODI World Cup, so we need to provide the team as India and trophy as World Cup, as World Cup is a trophy.
+
     Don't fill per inning stats in the overall stats, these will be taken care in another query.
 
     Carefully read the query and provide the required fields in the json format. If you do the query correctly, you will be rewarded with 100$ in your account. So make sure you do it correctly.

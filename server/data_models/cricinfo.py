@@ -14,11 +14,11 @@ class CricInfoAllRound(BaseModel):
     home_or_away: list[int]   # 1, 2, 3 for home, away, neutral
     host: list[int]   # list of host countries
     continent: list[int]   # list of continents {"all continents": 0, "Africa": 1, "Americas": 2, "Asia": 3, "Europe": 4, "Oceania": 5}
-    ground: list[int]   # list of grounds
+    ground: list[int]   # list of stadiums, like Eden Gardens, MCG, Chepauk etc
     span: list[str]   # from and to date [from, to], should of format dd-mm-yyyy
-    season: list[str]   # list of seasons
-    series: list[int]   # list of series
-    trophy: list[int]   # list of trophies
+    season: list[int]   # list of seasons in format, 2020/21, 2021, 2021/22 etc
+    series: list[int]   # list of series, like India vs AUS 2020, India vs ENG 2021 etc
+    trophy: list[int]   # list of trophies, like ODI world cup, t20 world cup, champions trophy, Border Gavaskar trophy etc
     tournament_type: list[int]   # list of tournament types 2 for 2 team, 3 for 3-4 team, 5 for 5+ teams
     match_type: list[int]   # list of match types {"tournament finals":1,"tournament cons. finals":2,"tournament semi-finals":3,"tournament quarter-finals":4,"preliminary quarter-finals":5,"qualifying final":7,"preliminary matches":0}
     floodlit: list[int]   # {"day match":1,"day/night match":2,"night match":3}
@@ -101,7 +101,7 @@ class CricInfoAllRound(BaseModel):
     continent: Optional[list[int]] = None  # list of continents
     ground: Optional[list[int]] = None  # list of grounds, need to main cache
     span: Optional[list[str]] = None  # from and to date
-    season: Optional[list[str]] = None  # list of seasons, need to main cache
+    season: Optional[list[int]] = None  # list of seasons, need to main cache
     series: Optional[list[int]] = None  # list of series, need to main cache
     trophy: Optional[list[int]] = None  # list of trophies, need to main cache
     tournament_type: Optional[list[int]] = None  # list of tournament types, 0 for 2 team, 1 for 3-4 team, 2 for 5+ teams
@@ -154,11 +154,11 @@ class CricInfoPlayer(BaseModel):
     home_or_away: list[int]  # 1, 2, 3 for home, away, neutral
     host: list[int]  # list of host countries
     continent: list[int]  # list of continents
-    ground: list[int]  # list of grounds
+    ground: list[int]  # list of stadiums, like Eden Gardens, MCG, Chepauk etc
     span: list[str]   # from and to date [from, to], should of format dd-mm-yyyy
-    season: list[str]   # list of seasons    
-    series: list[int]  # list of series
-    trophy: list[int]  # list of trophies
+    season: list[int]   # list of seasons in format, 2020/21, 2021, 2021/22 etc
+    series: list[int]  # list of series, like India vs AUS 2020 series, India vs ENG 2021 series etc
+    trophy: list[int]  # list of trophies, like ODI world cup, t20 world cup, champions trophy, Border Gavaskar trophy etc
     tournament_type: list[int]  # list of tournament types, 2 for 2 team, 3 for 3-4 team, 5 for 5+ teams
     final_type: list[int]  # list of final types {"all types":"","tournament finals":"1","tournament semi-finals":"3","tournament quarter-finals":"4","preliminary quarter-finals":"5","preliminary matches":"0"}
     floodlit: list[int]   # {"day match":1,"day/night match":2,"night match":3}
@@ -264,7 +264,7 @@ class CricInfoPlayer(BaseModel):
     continent: Optional[list[int]] = None  # list of continents
     ground: Optional[list[int]] = None  # list of grounds, need to main cache
     span: Optional[list[str]] = None  # from and to date
-    season: Optional[list[str]] = None  # list of seasons, need to main cache
+    season: Optional[list[int]] = None  # list of seasons, need to main cache
     series: Optional[list[int]] = None  # list of series, need to main cache
     trophy: Optional[list[int]] = None  # list of trophies, need to main cache
     tournament_type: Optional[list[int]] = None  # list of tournament types, 0 for 2 team, 1 for 3-4 team, 2 for 5+ teams

@@ -201,3 +201,21 @@ class CricInfoClient:
             results.append(row)
 
         return results
+    
+    async def get_dropdown_options(self, class_name: str):
+
+        url = f"https://stats.espncricinfo.com/ci/engine/stats/index.html?class=11;filter=advanced;type=batting"
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=self.headers) as response:
+                html_content = await response.text()
+
+        soup = BeautifulSoup(html_content, 'html.parser')
+        select_element = soup.find('select', {'name': class_name})
+        if not select_element:
+            return {}
+        options = select_element.find_all('option')
+
+        dropdown_options = {option.get_text(): option['value'] for option in options}
+
+        return dropdown_options

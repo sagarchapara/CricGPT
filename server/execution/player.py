@@ -180,7 +180,7 @@ def get_stats_prompt():
 
     Field output type is also mentioned, so if multiple values are asked then you need to provide a list of values.
 
-    Fields like countries, players, captains etc are in Integer format, which you don't have the id's for, so you need to provide the names of the countries, players, captains... I will convert them to id's before querying the cricinfo website.
+    Fields like countries, players, captains, series, seasons, trophies, grounds etc are in Integer format, which you don't have the id's for, so you need to provide the names of the countries, players, captains... I will convert them to id's before querying the cricinfo website.
     
     You need to provide output in json format.
 
@@ -253,7 +253,39 @@ def get_stats_prompt():
     ```
     Reasoning: Here we didn't use the runs_scored field, as we are not interested in the runs scored per innings but aggregate/total runs scored by Dhoni in the batting position.
 
+    Dhoni's stats in ODI World Cup:
+    
+    ```json
+    {{
+        "class_": 2,
+        "type": "batting",
+        "player": ["MS Dhoni"],
+        "trophy": ["World Cup"],
+    }}
+    ```
+    Reasoning: Here we used the trophy field to filter the stats to only World Cup matches, as world cup is a trophy.
 
+    Same query for T20 World Cup:
+
+    ```json
+    {{
+        "class_": 2,
+        "type": "batting",
+        "player": ["MS Dhoni"],
+        "trophy": ["ICC Men's T20 World Cup"],
+    }}
+    ```
+
+    Rohit Sharma stats in Eden Gardens:
+    ```json
+    {{
+        "class_": 2,
+        "type": "batting",
+        "player": ["Rohit Sharma"],
+        "host": ["IND: Eden Gardens, Kolkata"],
+    }}
+    ```
+    Reasoning: Here we used the host field to filter the stats to only matches played in Eden Gardens, Kolkata, Format is "Country: Ground, City"
 
     Carefully read the query and provide the required fields in the json format. If you do the query correctly, you will be rewarded with 100$ in your account. So make sure you do it correctly.
 

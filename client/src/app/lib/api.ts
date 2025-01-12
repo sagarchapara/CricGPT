@@ -1,7 +1,7 @@
 import { Message } from '../types/Message';
 
 // api.ts
-const API_URL = "https://api.cricstatsai.com";
+const API_URL = "http://127.0.0.1:8000";
 
 // Type safety for environment
 declare global {

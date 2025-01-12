@@ -168,7 +168,22 @@ You will be provided with the **user query + user query history**. You must care
 
 **Explanation**:  
 - This query involves one player (Sachin Tendulkar) compared against multiple opponents (SENA countries) and multiple formats (Tests and ODIs).  
-- Since Cricinfo supports querying multiple opponents and formats together, no breakdown is required.
+- Since it's a one-to-many query, no further breakdown is required.
+
+**Example Query: Sachin Tendulkar stats in Eden Gardens and Wankhede**  
+```json
+[
+  {
+    "type": "player",
+    "player": "Sachin Tendulkar",
+    "query": "Sachin Tendulkar stats in Eden Gardens and Wankhede"
+  }
+]
+```
+
+**Explanation**:  
+- This query involves one player (Sachin Tendulkar) compared against multiple stadiums.  
+- Since it's a one-to-many query, no further breakdown is required.
 
 ---
 

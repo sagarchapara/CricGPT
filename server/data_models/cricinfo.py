@@ -12,9 +12,9 @@ class CricInfoAllRound(BaseModel):
     team: list[int]   # list of countries
     opposition: list[int]   # list of opposition countries
     home_or_away: list[int]   # 1, 2, 3 for home, away, neutral
-    host: list[int]   # list of host countries
+    host: list[int]   # list of host countries, not stadiums
     continent: list[int]   # list of continents {"all continents": 0, "Africa": 1, "Americas": 2, "Asia": 3, "Europe": 4, "Oceania": 5}
-    ground: list[int]   # list of stadiums, like Eden Gardens, MCG, Chepauk etc
+    ground: list[int]   # list of stadiums, like Eden Gardens, MCG, SCG, Chepauk etc
     span: list[str]   # from and to date [from, to], should of format dd-mm-yyyy
     season: list[int]   # list of seasons in format, 2020/21, 2021, 2021/22 etc
     series: list[int]   # list of series, like India vs AUS 2020, India vs ENG 2021 etc
@@ -152,7 +152,7 @@ class CricInfoPlayer(BaseModel):
     class_: int # 1 for test, 2 for odi, 3 for t20, 11 for all, choose 11 for any two also, don't give list of values, you must always provide this field
     opposition: list[int]   # list of opposition countries
     home_or_away: list[int]  # 1, 2, 3 for home, away, neutral
-    host: list[int]  # list of host countries
+    host: list[int]  # list of host countries, like India, Australia, England etc, not stadiums
     continent: list[int]  # list of continents
     ground: list[int]  # list of stadiums, like Eden Gardens, MCG, Chepauk etc
     span: list[str]   # from and to date [from, to], should of format dd-mm-yyyy

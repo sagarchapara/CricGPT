@@ -60,8 +60,21 @@ class Player:
         #now get the order by fields
         type = response.get("type", "allround")
         view = response.get("view", "default")
+        tournaments: list[str] = response.get("trophy", None)
+        series: list[str] = response.get("series", None)
+        seasons: list[str] = response.get("season", None)
+        grounds: list[str] = response.get("ground", None)
 
-        view_prompt = get_view_fields_prompt(type, view)
+
+        #get probable tournmaments
+        probable_tournaments = None if tournaments is None else await self.id_mapper.get_probable_matches("trophies", tournaments)
+        probable_series = None if series is None else await self.id_mapper.get_probable_matches("series", series)
+        probable_seasons = None if seasons is None else await self.id_mapper.get_probable_matches("seasons", seasons)
+        probable_grounds = None if grounds is None else await self.id_mapper.get_probable_matches("stadiums", grounds)
+
+        print(probable_tournaments, probable_series, probable_seasons, probable_grounds)
+
+        view_prompt = get_view_fields_prompt(type, view, probable_tournaments, probable_series, probable_seasons, probable_grounds)
 
         view_results = await self.openai_client.get_response(system_prompt=view_prompt, query=query)
 
@@ -109,7 +122,7 @@ class Player:
         }
 
 @staticmethod
-def get_view_fields_prompt(type: str, view: str) -> str:
+def get_view_fields_prompt(type: str, view: str, probable_tournaments: list[str], probable_series: list[str], probable_seasons: list[str], probable_grounds: list[str]) -> str:
 
     if view is None or view == "":
         view = "default"
@@ -153,6 +166,30 @@ def get_view_fields_prompt(type: str, view: str) -> str:
     Don't provide any list of values, only provide the single value for the orderby field.
     Optionally if only it's abosulutely required provide the orderbyad field with value as reverse if you want in order in increasing order.
 
+    Along with this you have provided probable values for the tourmanets, series, seasons, grounds etc, you need to provide the correct values for these fields in the json structure.
+
+    Probable values for the touramnets are : {probable_tournaments}
+    Probable values for the series are : {probable_series}
+    Probable values for the seasons are : {probable_seasons}
+    Probable values for the grounds are : {probable_grounds}
+
+    These probable values are retried by string match, you need to use your reasoning to provide the correct values for the fields, it's possible that you can provide more than one value for the fields, if you think it's required.
+
+    Please provide them in the following json format:
+    
+    
+    {{
+        "orderby": "<order by>",
+        "orderbyad": <orderbyad>,
+        "trophy": ["<tournament>"], # list of tournaments values
+        "series": ["<series>"], # list of series values
+        "season": ["<season>"], # list of seasons values
+        "ground": ["<ground>"] # list of grounds values
+    }}
+
+    Omit the fields that are not required, only provide the fields that are required for the query.
+    When providing the values for the fields, make sure you provide the values only from the probable values list, If you don't find any correct value then omit that field from the json structure.
+    
     Please provide the json structure in the above format, with the correct values for the type, view and orderby fields.
     Don't add any comments in the json format, make sure it is a valid json format and all the fields are in the correct format.
 

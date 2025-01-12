@@ -1,14 +1,10 @@
 import json
 from api_clients.cricinfo_client import CricInfoClient
 from cache import PersistentCache
-from Levenshtein import distance
 import time
+from rapidfuzz import process
 
 class IdMapper:
-    trophy_dist_threshold = 10
-    series_dist_threshold = 15
-    stadium_dist_threshold = 15
-
     def __init__(self, cricInfoClient: CricInfoClient, cache:PersistentCache):
         self.cricInfoClient = cricInfoClient
         self.cache = cache
@@ -32,7 +28,7 @@ class IdMapper:
             "data": {}
         }
 
-        self.season = {
+        self.seasons = {
             "last_updated": 0, #unix timestamp
             "data": {}
         }
@@ -42,7 +38,7 @@ class IdMapper:
             return self.get_team_id(value)
         elif field == 'player':
             return await self.get_player_id(value)
-        elif field == 'stadium':
+        elif field == 'ground':
             return await self.get_stadium_id(value)
         elif field == 'trophy':
             return await self.get_trophy_id(value)
@@ -75,67 +71,53 @@ class IdMapper:
 
         return player_id
     
-    async def get_stadium_id(self, stadium: str):
-        print("last updated", self.stadiums["last_updated"])
-
-        #check if the data is updated
-        if time.time() - self.stadiums["last_updated"] > 3600:
-            #fetch the data
-            self.stadiums["data"] = await self.cricInfoClient.get_dropdown_options("ground")
-            self.stadiums["last_updated"] = time.time()
-
-        return self.get_closest_match(stadium, self.stadiums["data"], 15)
+    async def get_stadium_id(self, stadium: str) -> int:
+        return self.stadiums["data"].get(stadium)
     
     async def get_trophy_id(self, query: str) -> int:
-        print("last updated", self.trophies["last_updated"])
-
-        #check if the data is updated
-        if time.time() - self.trophies["last_updated"] > 3600:
-            #fetch the data
-            self.trophies["data"] = await self.cricInfoClient.get_dropdown_options("trophy")
-            self.trophies["last_updated"] = time.time()
-
-        return self.get_closest_match(query, self.trophies["data"], self.trophy_dist_threshold)
+       return self.trophies["data"].get(query)
     
     async def get_series_id(self, query: str) -> int:
-        print("last updated", self.series["last_updated"])
-
-        #check if the data is updated
-        if time.time() - self.series["last_updated"] > 3600:
-            #fetch the data
-            self.series["data"] = await self.cricInfoClient.get_dropdown_options("series")
-            self.series["last_updated"] = time.time()
-
-        return self.get_closest_match(query, self.series["data"], 15)
+        return self.series["data"].get(query)
     
     async def get_season_id(self, season: str):
-        print("last updated", self.season["last_updated"])
-
-        if time.time() - self.season["last_updated"] > 3600:
-            #fetch the data
-            self.season["data"] = await self.cricInfoClient.get_dropdown_options("season")
-            self.season["last_updated"] = time.time()
-
-        if season in self.season["data"]:
-            return self.season["data"][season]
+        return self.seasons["data"].get(season)
+            
+    async def populate_options(self, entity: str):
+        current_time = time.time()
+        if entity == 'stadiums':
+            if current_time - self.stadiums["last_updated"] > 86400:
+                self.stadiums["data"] = await self.cricInfoClient.get_dropdown_options("ground")
+                self.stadiums["last_updated"] = current_time
+        elif entity == 'trophies':
+            if current_time - self.trophies["last_updated"] > 86400:
+                self.trophies["data"] = await self.cricInfoClient.get_dropdown_options("trophy")
+                self.trophies["last_updated"] = current_time
+        elif entity == 'series':
+            if current_time - self.series["last_updated"] > 86400:
+                self.series["data"] = await self.cricInfoClient.get_dropdown_options("series")
+                self.series["last_updated"] = current_time
+        elif entity == 'seasons':
+            if current_time - self.seasons["last_updated"] > 86400:
+                self.seasons["data"] = await self.cricInfoClient.get_dropdown_options("season")
+                self.seasons["last_updated"] = current_time
         else:
-            return None
+            raise ValueError(f"Entity {entity} not found")
         
-    
-    def get_closest_match(self, query: str, data: dict, threshold: int) -> int:
-        filtered_matches = [
-            (k, distance(k.lower(), query.lower()))
-            for k in data.keys()
-            if distance(k.lower(), query.lower()) <= threshold
-        ]
+    async def get_probable_matches(self, entity, query: list[str]) -> list[str]:
+        #populate cache if not already populated
+        await self.populate_options(entity)
 
-        if filtered_matches:
-            closest_match, distance_value = min(filtered_matches, key=lambda x: x[1])
-            print(f"Closest match: {closest_match} (Distance: {distance_value}), ID: {data[closest_match]}")
+        data = getattr(self, entity)["data"]
 
-            return data[closest_match]
-        else:
-            print("No close matches found within the threshold.")
-            return None
+        matches = set()
 
+        for q in query:
+            probable_mactes =  process.extract(q, data.keys(), limit=5)
+
+            for match in probable_mactes:
+                if match[1] > 80:
+                    matches.add(match[0])
+
+        return list(matches)
         

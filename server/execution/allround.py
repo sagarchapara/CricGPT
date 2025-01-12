@@ -46,8 +46,18 @@ class AllRound:
         #now get the order by, groupby and result qualification fields
         type = response.get("type", "allround")
         view = response.get("view", "default")
+        tournaments: list[str] = response.get("trophy", None)
+        series: list[str] = response.get("series", None)
+        seasons: list[str] = response.get("season", None)
+        grounds: list[str] = response.get("ground", None)
 
-        view_prompt = get_view_fields_prompt(type, view)
+        #get probable values for the fields
+        probable_tournaments = None if tournaments is None else await self.id_mapper.get_probable_matches("trophies", tournaments)
+        probable_series = None if series is None else await self.id_mapper.get_probable_matches("series", series)
+        probable_seasons = None if seasons is None else await self.id_mapper.get_probable_matches("seasons", seasons)
+        probable_grounds = None if grounds is None else await self.id_mapper.get_probable_matches("stadiums", grounds)
+
+        view_prompt = get_view_fields_prompt(type, view, probable_tournaments, probable_series, probable_seasons, probable_grounds)
 
         view_results = await self.openai_client.get_response(system_prompt=view_prompt, query=query)
 
@@ -88,7 +98,7 @@ class AllRound:
         }
 
 @staticmethod
-def get_view_fields_prompt(type: str, view: str) -> str:
+def get_view_fields_prompt(type: str, view: str, probable_tournaments: list[str], probable_series: list[str], probable_seasons: list[str], probable_grounds: list[str]) -> str:
 
     if view is None or view == "":
         view = "default"
@@ -185,15 +195,32 @@ def get_view_fields_prompt(type: str, view: str) -> str:
     Don't provide any list of values, only provide the single value for the orderby field.
     Optionally provide the orderbyad field with value as reverse if you want to reverse the order.
 
-    Finally combine the result qualifications and orderby fields in the json structure.
+    Along with this you have provided probable values for the tourmanets, series, seasons, grounds etc, you need to provide the correct values for these fields in the json structure.
+
+    Probable values for the touramnets are : {probable_tournaments}
+    Probable values for the series are : {probable_series}
+    Probable values for the seasons are : {probable_seasons}
+    Probable values for the grounds are : {probable_grounds}
+
+    These probable values are retried by string match, you need to use your reasoning to provide the correct values for the fields, it's possible that you can provide more than one value for the fields, if you think it's required.
+
+    Please provide them in the following json format:
+
+    Finally combine all the fields in the json structure.
 
     {{
         "groupby": "<groupby>", # only provide the values given in the fields list if view is default
-        "result_qualifications": "<result_qualification>", # only provide the values given in the fields list, empty if not required
-        "qual_value": [from, to] of the result_qualification field, empty if not required
+        "result_qualifications": "<result_qualification>", # only provide the values given in the fields list, omit if not required
+        "qual_value": [from, to] of the result_qualification field, omit if not required
         "orderby": "<order by>",
-        "orderbyad": <orderbyad> # optional field if you want to reverse the order
+        "orderbyad": <orderbyad> # optional field if you want to reverse the order,
+        "trophy": ["<tournament1>", "<tournament2>"], # omit if not required
+        "series": ["<series1>", "<series2>"], # omit if not required
+        "season": ["<season1>", "<season2>"], # omit if not required
+        "ground": ["<ground1>", "<ground2>"] # omit if not required
     }}
+
+    When providing the values for the probable fields, make sure you provide the values only from the probable values list, If you don't find any correct value then omit that field from the json structure.
 
     Please provide the json structure in the above format, with the correct values for the type, view and orderby fields.
     Don't add any comments in the json format, make sure it is a valid json format and all the fields are in the correct format.

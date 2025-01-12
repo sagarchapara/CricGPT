@@ -22,8 +22,8 @@ type ChatContainerProps = {
     initialMessages?: Message[];
 }
 
-const ChatContainer: React.FC<ChatContainerProps> = ({ initialMessages = [] }) => {
-    const [messages, setMessages] = useState<Message[]>(initialMessages);
+const ChatContainer: React.FC<ChatContainerProps> = ({ }) => {
+    const [messages, setMessages] = useState<Message[]>([]);
     const [sessionId, setSessionId] = useState<string>('');
     const [shareLinkInfo, setShareLinkInfo] = useState<ShareLinkInfo | null>(null);
     const [input, setInput] = useState('');
@@ -31,13 +31,13 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ initialMessages = [] }) =
     const chatWindowRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        // Now we're sure we're on the client side
+        // Initialize messages and sessionId from sessionStorage
         const storedMessages = sessionStorage.getItem('chatMessages');
         const storedSessionId = sessionStorage.getItem('sessionId');
         const storedShareLink = sessionStorage.getItem('shareLink');
 
         if (storedMessages) {
-            setMessages(JSON.parse(storedMessages));
+            setMessages(JSON.parse(storedMessages)); // Restore messages
         }
 
         const newSessionId = storedSessionId || uuidv4();
@@ -52,6 +52,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ initialMessages = [] }) =
         }
     }, []);
 
+
     useEffect(() => {
         if (chatWindowRef.current) {
             chatWindowRef.current.scrollTo({
@@ -62,7 +63,9 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ initialMessages = [] }) =
     }, [messages, isTyping]);
 
     useEffect(() => {
-        sessionStorage.setItem('chatMessages', JSON.stringify(messages));
+        if (messages.length > 0) {
+            sessionStorage.setItem('chatMessages', JSON.stringify(messages));
+        }
     }, [messages]);
 
 
@@ -162,9 +165,9 @@ const ChatContainer: React.FC<ChatContainerProps> = ({ initialMessages = [] }) =
         sessionStorage.removeItem('chatMessages');
         sessionStorage.removeItem('shareLink');
 
-        setMessages([]); // Example: Clears messages
-        setSessionId(uuidv4()); // Example: Generates new session
-        setShareLinkInfo(null); // Example: Clears share link info
+        setMessages([]); // Clears messages
+        setSessionId(uuidv4()); // Generates new session
+        setShareLinkInfo(null); // Clears share link info
     };
 
     const copyToClipboard = async (content: string): Promise<void> => {

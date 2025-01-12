@@ -5,6 +5,7 @@ from id_mapper import IdMapper
 from utils.utils import load_json, filter_results
 from utils.prompts import get_summary_promt
 import asyncio, json, os
+from datetime import datetime
 
 
 class Player:
@@ -66,13 +67,13 @@ class Player:
         grounds: list[str] = response.get("ground", None)
 
 
-        #get probable tournmaments
+        #get probable values for the fields
         probable_tournaments = None if tournaments is None else await self.id_mapper.get_probable_matches("trophies", tournaments)
         probable_series = None if series is None else await self.id_mapper.get_probable_matches("series", series)
         probable_seasons = None if seasons is None else await self.id_mapper.get_probable_matches("seasons", seasons)
         probable_grounds = None if grounds is None else await self.id_mapper.get_probable_matches("stadiums", grounds)
 
-        print(probable_tournaments, probable_series, probable_seasons, probable_grounds)
+        # print(probable_tournaments, probable_series, probable_seasons, probable_grounds)
 
         view_prompt = get_view_fields_prompt(type, view, probable_tournaments, probable_series, probable_seasons, probable_grounds)
 
@@ -143,6 +144,8 @@ def get_view_fields_prompt(type: str, view: str, probable_tournaments: list[str]
     You are an intelligent AI agent, whose reponsibilty is to provide a json structure that can be used to query the cricinfo website for player stats.
     Specially you are responsible for the view orderby fields which are high importance for the query and earth can be in danger if you don't provide them correctly.
 
+    Current Time: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}, which means you have stats knowledge till this time.
+    
     You have selected the type as {type} and view as {view}, so you need to provide the orderby fields for the query.
 
     These are the following fields that you need to provide:
@@ -202,7 +205,7 @@ def get_view_fields_prompt(type: str, view: str, probable_tournaments: list[str]
 @staticmethod
 def get_stats_prompt():
     return f'''
-    You are an intelligent AI agent, whose reponsibilty is to provide a json structure that can be used to query the cricinfo website for player stats.
+    You are an intelligent AI agent, whose reponsibilty is to provide a json structure that can be used to query the cricinfo website for player stats.    
     These are the follwing fields that you need to provide depending on the query:
 
     {get_class_description(CricInfoPlayer)}

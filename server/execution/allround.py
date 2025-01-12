@@ -5,6 +5,7 @@ from id_mapper import IdMapper
 from utils.utils import load_json, filter_results
 from utils.prompts import get_summary_promt
 import json
+from datetime import datetime
 
 class AllRound:
     def __init__(self, openai_client: OpenAIClient, cricinfo_client: CricInfoClient, id_mapper: IdMapper):
@@ -234,6 +235,9 @@ def get_view_fields_prompt(type: str, view: str, probable_tournaments: list[str]
 def get_stats_prompt():
     return f'''
     You are an intelligent AI agent, whose reponsibilty is to provide a json structure that can be used to query the cricinfo website for batting stats.
+    
+    Current Time: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}, which means you have stats knowledge till this time.
+    
     These are the follwing fields that you need to provide depending on the query:
 
     {get_class_description(CricInfoAllRound)}

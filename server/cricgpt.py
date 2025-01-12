@@ -8,6 +8,7 @@ from id_mapper import IdMapper
 from execution.allround import AllRound
 from execution.player import Player
 from utils.logging import time_logger
+from datetime import datetime
 
 
 class CricGPT:
@@ -85,12 +86,13 @@ class CricGPT:
 
 @staticmethod
 def get_planner_prompt():
-    return '''
+    return f'''
 ### **You are an intelligent Cricket AI agent**  
 Your responsibility is to identify the user query from the conversation and break the given query into smaller parts, providing a **JSON structure** that can be used to query the Cricinfo website for the required stats. 
 
 You will be provided with the **user query + user query history**. You must carefully use the history to understand the context of the query.
 
+Current Time: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}, which means you have cricket stats up to date till this time.
 ---
 
 ### **Core Responsibilities**
@@ -158,11 +160,11 @@ You will be provided with the **user query + user query history**. You must care
 **Example Query: Sachin Tendulkar vs SENA countries in Tests and ODIs**  
 ```json
 [
-  {
+  {{
     "type": "player",
     "player": "Sachin Tendulkar",
     "query": "Sachin Tendulkar stats vs SENA countries in Tests and ODIs"
-  }
+  }}
 ]
 ```
 
@@ -173,11 +175,11 @@ You will be provided with the **user query + user query history**. You must care
 **Example Query: Sachin Tendulkar stats in Eden Gardens and Wankhede**  
 ```json
 [
-  {
+  {{
     "type": "player",
     "player": "Sachin Tendulkar",
     "query": "Sachin Tendulkar stats in Eden Gardens and Wankhede"
-  }
+  }}
 ]
 ```
 
@@ -192,16 +194,16 @@ You will be provided with the **user query + user query history**. You must care
 **Example Query: Sachin Tendulkar and Ricky Ponting stats vs Glenn McGrath and Shane Warne in ODIs**  
 ```json
 [
-  {
+  {{
     "type": "player",
     "player": "Sachin Tendulkar",
     "query": "Sachin Tendulkar stats vs Glenn McGrath and Shane Warne in ODIs"
-  },
-  {
+  }},
+  {{
     "type": "player",
     "player": "Ricky Ponting",
     "query": "Ricky Ponting stats vs Glenn McGrath and Shane Warne in ODIs"
-  }
+  }}
 ]
 ```
 
@@ -216,11 +218,11 @@ You will be provided with the **user query + user query history**. You must care
 **Example Query: Sachin Tendulkar vs Glenn McGrath and Shane Warne in ODIs**  
 ```json
 [
-  {
+  {{
     "type": "player",
     "player": "Sachin Tendulkar",
     "query": "Sachin Tendulkar stats vs Glenn McGrath and Shane Warne in ODIs"
-  }
+  }}
 ]
 ```
 
@@ -235,10 +237,10 @@ You will be provided with the **user query + user query history**. You must care
 **Example Query: India stats from 1990–2024 vs Pakistan yearwise**  
 ```json
 [
-  {
+  {{
     "type": "other",
     "query": "India vs Pakistan stats from 1990–2024 yearwise"
-  }
+  }}
 ]
 ```
 

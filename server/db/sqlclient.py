@@ -3,11 +3,11 @@ import os, sqlalchemy, ssl, psycopg2
 class SQLClient:
     def __init__(self):
         try:
-            SQL_SERVER = "34.47.131.52"
-            SQL_DATABASE = "cricdata"
-            SQL_USER = "postgres"
-            SQL_PASSWORD = "sagar12@" 
-            SQL_PORT = "5432"
+            SQL_SERVER = ""
+            SQL_DATABASE = ""
+            SQL_USER = ""
+            SQL_PASSWORD = "" 
+            SQL_PORT = ""
 
             host = os.getenv("SQL_HOST") if os.getenv("SQL_HOST") else SQL_SERVER
             dbname = os.getenv("SQL_DB") if os.getenv("SQL_DB") else SQL_DATABASE
